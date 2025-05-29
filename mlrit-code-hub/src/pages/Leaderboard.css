@@ -1,0 +1,108 @@
+.leaderboard-container {
+  padding: 30px;
+  background: linear-gradient(to right, #0f172a, #1e293b);
+  color: #ffffff;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #facc15, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  background-color: #1e293b;
+  color: #fff;
+  outline: none;
+  border: 1px solid #475569;
+  transition: 0.3s;
+}
+
+.search-input::placeholder {
+  color: #cbd5e1;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  border-color: #facc15;
+  background-color: #0f172a;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.leaderboard-table { /* Add . to make it a class selector */
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #1e293b;
+}
+
+.leaderboard-table th, .leaderboard-table td { /* Add . to make it a class selector */
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+}
+
+.leaderboard-table th { /* Add . to make it a class selector */
+  background-color: #334155;
+  color: #facc15;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.rank-row:hover {
+  background-color: #0f172a;
+  transition: 0.3s;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-weight: bold;
+  color: white;
+  font-size: 14px;
+}
+
+.rank-badge-1 {
+  background: linear-gradient(to right, #f59e0b, #facc15);
+}
+
+.rank-badge-2 {
+  background: linear-gradient(to right, #64748b, #94a3b8);
+}
+
+.rank-badge-3 {
+  background: linear-gradient(to right, #38bdf8, #0ea5e9);
+}
+
+.rank-row.rank-1 td {
+  font-weight: bold;
+  color: #fde68a;
+}
+
+.rank-row.rank-2 td {
+  color: #e2e8f0;
+}

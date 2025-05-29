@@ -1,0 +1,29 @@
+.contest-details {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #1e293b;
+    color: white;
+    border-radius: 8px;
+  }
+  
+  .contest-details h2 {
+    color: #ffa116;
+    margin-bottom: 10px;
+  }
+  
+  .contest-details ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .contest-details li {
+    margin-bottom: 12px;
+  }
+  
+  .contest-details a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  

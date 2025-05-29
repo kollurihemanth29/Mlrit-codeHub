@@ -1,0 +1,50 @@
+.add-problem {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #1e293b;
+    border-radius: 10px;
+    color: white;
+  }
+  
+  .add-problem h2 {
+    color: #ffa116;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .add-problem form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .add-problem input,
+  .add-problem textarea,
+  .add-problem select {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+  }
+  
+  .test-case {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .add-problem button {
+    margin-top: 10px;
+    background: #ffa116;
+    padding: 10px;
+    border: none;
+    font-weight: bold;
+    color: black;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-problem button:hover {
+    background: #e69500;
+  }
+  

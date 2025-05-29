@@ -1,0 +1,134 @@
+.problemset-page {
+  padding: 40px;
+  background: #0f172a;
+  color: white;
+  min-height: 100vh;
+}
+
+.problemset-page h2 {
+  color: #ffa116;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.problemset-filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.problemset-filters input,
+.problemset-filters select {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  width: 100%;
+  max-width: 300px;
+  font-size: 14px;
+}
+
+.problemset-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.problemset-table th,
+.problemset-table td {
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 1px solid #334155;
+}
+
+.problemset-table th {
+  background-color: #334155;
+  color: #ffa116;
+  font-weight: bold;
+}
+
+/* Ensures all rows have the same background */
+.problemset-table tr {
+  background-color: #1e293b;
+}
+
+.solve-btn {
+  padding: 6px 12px;
+  background-color: #22c55e;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.solve-btn:hover {
+  background-color: #16a34a;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background: #334155;
+  border: none;
+  color: rgb(23, 142, 240);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background: #1e293b;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+.solved-tag {
+  background-color: #16a34a;
+  color: rgb(7, 98, 234);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.unsolved-tag {
+  background-color: #e5e7eb;
+  color: #111827;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.problemset-table tr,
+.problemset-table tbody tr,
+.problemset-table tbody tr:nth-child(even),
+.problemset-table tbody tr:nth-child(odd) {
+  background-color: #1e293b !important;
+
+}
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button {
+  padding: 5px 10px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

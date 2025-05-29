@@ -1,0 +1,176 @@
+.solve-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #0f172a;
+}
+
+.solve-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+/* Left: Problem Statement / Submissions */
+.solve-left {
+  overflow-y: auto;
+  background-color: #1e293b;
+  padding: 20px;
+  color: #e2e8f0;
+  transition: width 0.3s;
+}
+
+/* Resizer bar */
+.resizer {
+  width: 6px;
+  background-color: #475569;
+  cursor: col-resize;
+  z-index: 10;
+  transition: background-color 0.2s;
+}
+.resizer:hover {
+  background-color: #0ea5e9;
+}
+
+/* Right: Code Editor & Output */
+.solve-right {
+  padding: 20px;
+  background-color: #f1f5f9;
+  overflow-y: auto;
+  height: 100%;
+  flex-grow: 1;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.input-box textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+  padding: 10px;
+  font-family: monospace;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.output-box {
+  margin-top: 15px;
+  background: #0f172a;
+  padding: 10px;
+  color: #00f7ff;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+
+.verdict {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Tabs */
+.left-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.left-tabs button {
+  padding: 6px 12px;
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.left-tabs .active-tab {
+  background-color: #0ea5e9;
+}
+
+/* Submission History */
+.submission-history {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.submission-card {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+  color: #f1f5f9;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.submission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.verdict.passed {
+  background-color: #16a34a;
+  color: white;
+}
+
+.verdict.failed {
+  background-color: #dc2626;
+  color: white;
+}
+
+.lang-label {
+  background-color: #334155;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 12px;
+}
+
+.timestamp {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.submission-code {
+  background-color: #1e293b;
+  padding: 10px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Re-run button */
+.rerun-btn {
+  margin-top: 10px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.rerun-btn:hover {
+  background-color: #2563eb;
+}
