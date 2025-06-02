@@ -7,7 +7,8 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserContext from "./context/UserContext";
 
-// Auth & Profile
+// Pages
+import LandingPage from "./pages/landingpage";
 import AuthPage from "./pages/AuthPage";
 import Profile from "./pages/Profile";
 
@@ -60,8 +61,9 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
-          {/* Public */}
-          <Route path="/" element={<AuthPage />} />
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<AuthPage />} />
 
           {/* Admin Protected Routes */}
           <Route path="/admin-home" element={<ProtectedRoute allowedRole="admin"><AdminHome /></ProtectedRoute>} />
@@ -75,13 +77,13 @@ function App() {
           <Route path="/student-home" element={<ProtectedRoute allowedRole="student"><StudentHome /></ProtectedRoute>} />
           <Route path="/editor" element={<ProtectedRoute allowedRole="student"><CodeEditor /></ProtectedRoute>} />
 
-          {/* Profile (common) */}
+          {/* Profile */}
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
           {/* Problem Set */}
           <Route path="/problem-set" element={<ProtectedRoute allowedRole="student"><ProblemSet /></ProtectedRoute>} />
-          
-          {/* Leaderboard (Visible to all authenticated users) */}
+
+          {/* Leaderboard */}
           <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
 
           {/* Contest Routes */}

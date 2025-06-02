@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import UserContext from "../context/UserContext";
 import {
-  addDays,
   eachDayOfInterval,
   endOfWeek,
   format,
