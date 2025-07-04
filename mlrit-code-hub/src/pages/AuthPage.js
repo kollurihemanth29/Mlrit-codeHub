@@ -10,6 +10,7 @@ const AuthPage = () => {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    rollNumber: "",
     password: "",
     confirmPassword: "",
     role: "student"
@@ -353,6 +354,20 @@ const AuthPage = () => {
                 <div className="form-highlight"></div>
               </div>
 
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-input"
+                  id="rollNumber"
+                  placeholder=" "
+                  value={form.rollNumber}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="rollNumber" className="form-label">Roll Number</label>
+                <div className="form-highlight"></div>
+              </div>
+
               <div className="form-options">
                 <label className="checkbox-container">
                   <input type="checkbox" required />
@@ -380,12 +395,21 @@ const AuthPage = () => {
 
         <div className="auth-links">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(!isLogin); }} className="auth-link">
-            {isLogin ? "Sign up" : "Sign in"}
-            <svg className="link-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
+          {isLogin ? (
+            <Link to="/register?college=&year=&department=" className="auth-link">
+              Sign up
+              <svg className="link-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          ) : (
+            <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(!isLogin); }} className="auth-link">
+              Sign in
+              <svg className="link-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+          )}
         </div>
       </div>
     </div>

@@ -15,10 +15,18 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // PUT /api/profile
 router.put("/", authenticateToken, async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, dob, gender, college, year, department, rollNumber, codingProfiles } = req.body;
+  const updateFields = { name, email };
+  if (dob !== undefined) updateFields.dob = dob;
+  if (gender !== undefined) updateFields.gender = gender;
+  if (college !== undefined) updateFields.college = college;
+  if (year !== undefined) updateFields.year = year;
+  if (department !== undefined) updateFields.department = department;
+  if (rollNumber !== undefined) updateFields.rollNumber = rollNumber;
+  if (codingProfiles !== undefined) updateFields.codingProfiles = codingProfiles;
   const updatedUser = await User.findByIdAndUpdate(
     req.user.id,
-    { name, email },
+    updateFields,
     { new: true }
   ).select("-password");
   res.json(updatedUser);

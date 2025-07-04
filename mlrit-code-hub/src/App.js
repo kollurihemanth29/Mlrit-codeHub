@@ -11,6 +11,7 @@ import UserContext from "./context/UserContext";
 import LandingPage from "./pages/landingpage";
 import AuthPage from "./pages/AuthPage";
 import Profile from "./pages/Profile";
+import Register from "./pages/Register";
 
 // Admin Pages
 import AdminHome from "./pages/AdminHome";
@@ -64,6 +65,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<AuthPage />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Admin Protected Routes */}
           <Route path="/admin-home" element={<ProtectedRoute allowedRole="admin"><AdminHome /></ProtectedRoute>} />

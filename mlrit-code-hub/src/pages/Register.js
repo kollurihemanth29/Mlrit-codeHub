@@ -1,19 +1,38 @@
 // src/pages/Register.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import './login.css'; // We'll reuse the same styles
 
 const Register = () => {
+  const location = useLocation();
+  function getQueryParam(param) {
+    const params = new URLSearchParams(location.search);
+    return params.get(param) || '';
+  }
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    rollNumber: '',
     password: '',
     confirmPassword: '',
-    role: 'student'
+    role: 'student',
+    college: getQueryParam('college'),
+    year: getQueryParam('year'),
+    department: getQueryParam('department')
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      college: getQueryParam('college'),
+      year: getQueryParam('year'),
+      department: getQueryParam('department'),
+    }));
+    // eslint-disable-next-line
+  }, [location.search]);
 
   const handleChange = (e) => {
     setFormData({
@@ -21,6 +40,8 @@ const Register = () => {
       [e.target.id]: e.target.value
     });
   };
+
+  const academicYears = Array.from({length: 2040 - 2026 + 1}, (_, i) => 2026 + i);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +51,8 @@ const Register = () => {
     }
     setIsLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
+      const payload = { ...formData, year: Number(formData.year) };
+      await axios.post("http://localhost:5000/api/auth/register", payload);
       alert("Registration successful");
       navigate("/login");
     } catch (error) {
@@ -94,6 +116,20 @@ const Register = () => {
 
           <div className="form-group">
             <input
+              type="text"
+              className="form-input"
+              id="rollNumber"
+              placeholder=" "
+              value={formData.rollNumber}
+              onChange={handleChange}
+              required
+            />
+            <label htmlFor="rollNumber" className="form-label">Roll Number</label>
+            <div className="form-highlight"></div>
+          </div>
+
+          <div className="form-group">
+            <input
               type="password"
               className="form-input"
               id="password"
@@ -135,6 +171,59 @@ const Register = () => {
             <div className="form-highlight"></div>
           </div>
 
+          <div className="form-group">
+            <select
+              className="form-input"
+              id="college"
+              value={formData.college}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select College</option>
+              <option value="MLR Institute of Technology">MLR Institute of Technology</option>
+              <option value="Marri Laxman Reddy College">Marri Laxman Reddy College</option>
+              <option value="IARE">IARE</option>
+            </select>
+            <label htmlFor="college" className="form-label">College</label>
+            <div className="form-highlight"></div>
+          </div>
+
+          <div className="form-group">
+            <select
+              className="form-input"
+              id="year"
+              value={formData.year}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Academic Year</option>
+              {academicYears.map((yr) => (
+                <option key={yr} value={yr}>{yr}</option>
+              ))}
+            </select>
+            <label htmlFor="year" className="form-label">Academic Year</label>
+            <div className="form-highlight"></div>
+          </div>
+
+          <div className="form-group">
+            <select
+              className="form-input"
+              id="department"
+              value={formData.department}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Department</option>
+              <option value="AIML">AIML</option>
+              <option value="CSE">CSE</option>
+              <option value="IT">IT</option>
+              <option value="CSIT">CSIT</option>
+              <option value="CSD">CSD</option>
+            </select>
+            <label htmlFor="department" className="form-label">Department</label>
+            <div className="form-highlight"></div>
+          </div>
+
           <div className="form-options">
             <label className="checkbox-container">
               <input type="checkbox" required />
@@ -157,27 +246,6 @@ const Register = () => {
             )}
           </button>
         </form>
-
-        {/* Divider */}
-        <div className="auth-divider">
-          <span>or continue with</span>
-        </div>
-
-        {/* Social Register */}
-        <div className="social-auth">
-          <button className="social-button">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12.545,12.151L12.545,12.151c0,1.054,0.855,1.909,1.909,1.909h3.536c-0.684,2.047-2.583,3.534-4.829,3.534c-2.829,0-5.125-2.296-5.125-5.125c0-2.829,2.296-5.125,5.125-5.125c1.349,0,2.576,0.524,3.49,1.379l1.547-1.547C14.887,7.346,13.296,6.791,11.545,6.791c-3.609,0-6.545,2.936-6.545,6.545c0,3.609,2.936,6.545,6.545,6.545c3.609,0,6.545-2.936,6.545-6.545v-1.909h-5.545C12.545,11.427,12.545,12.151,12.545,12.151z" />
-            </svg>
-            Sign up with Google
-          </button>
-          <button className="social-button">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            Sign up with GitHub
-          </button>
-        </div>
 
         {/* Links */}
         <div className="auth-links">
