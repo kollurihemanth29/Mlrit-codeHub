@@ -1,0 +1,165 @@
+:root {
+  --mlrit-purple: #8b5cf6;
+  --mlrit-purple-light: #a78bfa;
+  --mlrit-purple-dark: #7c3aed;
+  --mlrit-pink: #ec4899;
+  --mlrit-blue: #3b82f6;
+  --bg-dark: #0f0f23;
+  --bg-mid: #1a1a2e;
+  --bg-light: #16213e;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+}
+
+.admin-create-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid) 50%, var(--bg-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.admin-create-card {
+  width: 100%;
+  max-width: 700px;
+  background: #181824;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(16, 16, 32, 0.25);
+  border: 1px solid #2d2d4d;
+  padding: 2.5rem 2rem;
+}
+
+.admin-create-title {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: -1px;
+}
+
+.admin-create-label {
+  color: var(--mlrit-purple-light);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.admin-create-input,
+.admin-create-textarea,
+.admin-create-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--bg-mid);
+  border: 1px solid #2d2d4d;
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+.admin-create-input:focus,
+.admin-create-textarea:focus,
+.admin-create-select:focus {
+  border: 1.5px solid var(--mlrit-purple);
+  outline: none;
+}
+
+.admin-create-modules,
+.admin-create-questions {
+  margin-bottom: 2rem;
+}
+
+.admin-create-module-card,
+.admin-create-question-card {
+  background: #23234a;
+  border-radius: 1rem;
+  border: 1px solid #2d2d4d;
+  padding: 1.25rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-create-checkbox-label {
+  color: var(--mlrit-purple-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-create-btn,
+.admin-create-btn-gradient {
+  padding: 0.75rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.admin-create-btn {
+  background: var(--mlrit-purple);
+  color: #fff;
+  margin-right: 1rem;
+}
+.admin-create-btn:hover {
+  background: var(--mlrit-purple-dark);
+}
+.admin-create-btn-gradient {
+  background: linear-gradient(90deg, var(--mlrit-blue), var(--mlrit-purple));
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.15);
+}
+.admin-create-btn-gradient:hover {
+  background: linear-gradient(90deg, var(--mlrit-purple), var(--mlrit-blue));
+}
+
+/* Code Editor Mockup */
+.admin-create-code-editor {
+  background: var(--bg-mid);
+  border: 1px solid #2d2d4d;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  color: #fff;
+  font-size: 0.98rem;
+  position: relative;
+}
+.admin-create-code-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.admin-create-code-controls {
+  display: flex;
+  gap: 0.3rem;
+  margin-right: 0.7rem;
+}
+.admin-create-code-control {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+.admin-create-code-control.red { background: #ff5f56; }
+.admin-create-code-control.yellow { background: #ffbd2e; }
+.admin-create-code-control.green { background: #27c93f; }
+.admin-create-code-filename {
+  color: var(--mlrit-purple-light);
+  font-size: 0.85rem;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+}
+.admin-create-code-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: #fff;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 0.98rem;
+  min-height: 80px;
+} 

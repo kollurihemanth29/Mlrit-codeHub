@@ -79,6 +79,12 @@ const Navbar = () => {
               <Link to="/admin-home" className={`nav-link ${isActive('/admin-home') ? 'active' : ''}`}>
                 Dashboard
               </Link>
+              <Link to="/courses" className={`nav-link ${isActive('/courses') ? 'active' : ''}`}>
+                Courses
+              </Link>
+              <Link to="/admin/create-course" className={`nav-link ${isActive('/admin/create-course') ? 'active' : ''}`}>
+                Create Course
+              </Link>
               <Link to="/admin/add-problem" className={`nav-link ${isActive('/admin/add-problem') ? 'active' : ''}`}>
                 Add Problem
               </Link>
@@ -93,6 +99,9 @@ const Navbar = () => {
             <>
               <Link to="/student-home" className={`nav-link ${isActive('/student-home') ? 'active' : ''}`}>
                 Home
+              </Link>
+              <Link to="/courses" className={`nav-link ${isActive('/courses') ? 'active' : ''}`}>
+                Courses
               </Link>
               <Link to="/editor" className={`nav-link ${isActive('/editor') ? 'active' : ''}`}>
                 Compiler

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 // Layout & Context
@@ -20,6 +20,7 @@ import AdminProblems from "./pages/AdminProblems";
 import EditProblem from "./pages/EditProblem";
 import CreateContest from "./pages/CreateContest";
 import ManageContests from "./pages/ManageContests";
+import AdminCreateCourse from "./pages/AdminCreateCourse";
 
 // Student Pages
 import StudentHome from "./pages/StudentHome";
@@ -34,10 +35,20 @@ import Contests from "./pages/ContestList";
 import ContestDetail from "./pages/ContestDetail";
 import SolveContest from "./pages/SolveContestProblem";
 import SolveProblemSetProblem from "./pages/SolveProblemSetProblem";
+import CourseDetail from "./pages/CourseDetail";
+import ModuleDetail from "./pages/ModuleDetail";
+import Courses from "./pages/Courses";
+import SecureTest from "./pages/SecureTest";
 
 function App() {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
+
+  // Custom hook to get current location
+  function usePath() {
+    const location = useLocation();
+    return location.pathname;
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,6 +60,10 @@ function App() {
             },
           });
           setUser(res.data);
+          // Ensure userId is set in localStorage for course features
+          if (res.data && res.data._id && !localStorage.getItem("userId")) {
+            localStorage.setItem("userId", res.data._id);
+          }
         } catch (err) {
           console.error("Failed to load profile", err);
         }
@@ -57,10 +72,13 @@ function App() {
     fetchUser();
   }, [token]);
 
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      <Router>
-        <Navbar />
+  function AppContent() {
+    const path = usePath();
+    // Hide Navbar on SecureTest page
+    const isSecureTest = /^\/courses\/[^/]+\/test$/.test(path);
+    return (
+      <>
+        {!isSecureTest && <Navbar />}
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -74,19 +92,20 @@ function App() {
           <Route path="/admin/edit-problem/:id" element={<ProtectedRoute allowedRole="admin"><EditProblem /></ProtectedRoute>} />
           <Route path="/admin/create-contest" element={<ProtectedRoute allowedRole="admin"><CreateContest /></ProtectedRoute>} />
           <Route path="/admin/manage-contests" element={<ProtectedRoute allowedRole="admin"><ManageContests /></ProtectedRoute>} />
+          <Route path="/admin/create-course" element={<ProtectedRoute allowedRole="admin"><AdminCreateCourse /></ProtectedRoute>} />
 
           {/* Student Protected Routes */}
           <Route path="/student-home" element={<ProtectedRoute allowedRole="student"><StudentHome /></ProtectedRoute>} />
           <Route path="/editor" element={<ProtectedRoute allowedRole="student"><CodeEditor /></ProtectedRoute>} />
 
           {/* Profile */}
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute allowedRole={undefined}><Profile /></ProtectedRoute>} />
 
           {/* Problem Set */}
           <Route path="/problem-set" element={<ProtectedRoute allowedRole="student"><ProblemSet /></ProtectedRoute>} />
 
           {/* Leaderboard */}
-          <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute allowedRole={undefined}><Leaderboard /></ProtectedRoute>} />
 
           {/* Contest Routes */}
           <Route path="/contests" element={<ProtectedRoute allowedRole="student"><Contests /></ProtectedRoute>} />
@@ -94,9 +113,23 @@ function App() {
           <Route path="/contest/:contestId/solve/:problemId" element={<ProtectedRoute allowedRole="student"><SolveContest /></ProtectedRoute>} />
           <Route path="/solve/:problemId" element={<ProtectedRoute allowedRole="student"><SolveProblemSetProblem /></ProtectedRoute>} />
 
+          {/* Course Routes */}
+          <Route path="/courses/:id" element={<ProtectedRoute allowedRole={["student", "admin"]}><CourseDetail /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/module/:moduleIndex" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleDetail /></ProtectedRoute>} />
+          <Route path="/courses/:id/test" element={<ProtectedRoute allowedRole={["student", "admin"]}><SecureTest /></ProtectedRoute>} />
+          <Route path="/courses" element={<ProtectedRoute allowedRole={["student", "admin"]}><Courses /></ProtectedRoute>} />
+
           {/* 404 Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+      </>
+    );
+  }
+
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      <Router>
+        <AppContent />
       </Router>
     </UserContext.Provider>
   );

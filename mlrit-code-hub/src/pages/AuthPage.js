@@ -44,6 +44,7 @@ const AuthPage = () => {
       const response = await axios.post(url, form);
       if (isLogin) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("userId", response.data.userId);
         response.data.role === "admin"
           ? navigate("/admin-home")
           : navigate("/student-home");

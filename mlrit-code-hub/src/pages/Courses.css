@@ -1,0 +1,267 @@
+:root {
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --secondary: #3b82f6;
+  --background: #0f0f23;
+  --background-mid: #1a1a2e;
+  --background-light: #181824;
+  --card: #23234a;
+  --border: #2d2d4d;
+  --text-main: #f3f4f6;
+  --text-secondary: #bdbdfd;
+  --text-tertiary: #94a3b8;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+.courses-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--background), var(--background-mid) 50%, var(--background-light));
+  padding: 0;
+}
+.courses-header {
+  padding-top: 2.5rem;
+  padding-left: 2.5rem;
+}
+.courses-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--primary-light);
+  letter-spacing: -1px;
+}
+.courses-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-tertiary);
+  margin-bottom: 2rem;
+}
+.courses-list {
+  display: flex;
+  gap: 2rem;
+  padding: 0 2.5rem 2rem 2.5rem;
+  flex-wrap: wrap;
+}
+.course-card {
+  background: linear-gradient(135deg, var(--card), var(--background-mid) 80%);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.12);
+  padding: 2rem 1.5rem;
+  min-width: 340px;
+  max-width: 400px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  border: 1.5px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.course-card:hover {
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.22);
+  transform: translateY(-4px) scale(1.02);
+}
+.course-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.course-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.course-card-badge {
+  padding: 0.25rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.10);
+}
+.course-card-badge.beginner {
+  background: var(--primary-light);
+  color: #fff;
+}
+.course-card-badge.intermediate {
+  background: var(--secondary);
+  color: #fff;
+}
+.course-card-badge.advanced {
+  background: var(--danger);
+  color: #fff;
+}
+.course-card-badge.completed {
+  background: var(--success);
+  color: #fff;
+}
+.course-card-desc {
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+.course-card-meta {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.course-card-progress-label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--primary-light);
+}
+.course-card-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--background-light);
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.course-card-progress {
+  height: 10px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary) 100%);
+  transition: width 0.3s;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.18);
+}
+.course-card-progress-info {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.course-card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.course-card-btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.10);
+}
+.course-card-btn:hover {
+  background: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.18);
+}
+.course-card-btn.secondary {
+  background: var(--background-light);
+  color: var(--primary-light);
+  border: 1px solid var(--primary);
+}
+.course-card-btn.secondary:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.course-card-btn.locked {
+  background: var(--background-light);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  border: 1px solid var(--background-light);
+}
+.courses-dashboard {
+  display: flex;
+  gap: 2rem;
+  padding: 0 2.5rem 2rem 2.5rem;
+}
+.courses-dashboard-card {
+  background: linear-gradient(135deg, var(--card), var(--background-mid) 80%);
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.10);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-width: 220px;
+  flex: 1;
+  border: 1.5px solid var(--border);
+}
+.courses-dashboard-icon {
+  font-size: 2.2rem;
+  color: var(--primary);
+}
+.courses-dashboard-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.courses-dashboard-label {
+  color: var(--text-tertiary);
+  font-size: 1rem;
+}
+.course-card-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.2rem 0 0.7rem 0;
+  justify-content: flex-start;
+}
+.course-card-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 32px;
+}
+.course-card-step-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--background-light);
+  border: 2.5px solid var(--background-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  z-index: 1;
+  transition: background 0.2s, border 0.2s;
+}
+.course-card-step-circle.completed {
+  background: var(--primary);
+  border: 2.5px solid var(--primary-dark);
+  color: #fff;
+}
+.course-card-step-label {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin-top: 0.2rem;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.course-card-step-line {
+  flex: 1;
+  height: 3px;
+  background: var(--background-light);
+  margin: 0 0.1rem;
+  border-radius: 2px;
+  position: relative;
+  top: -10px;
+  z-index: 0;
+}
+.course-card-step-line.completed {
+  background: var(--primary);
+}
+
+/* Accessibility focus states */
+.course-card-btn:focus, .course-card-btn.secondary:focus {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+} 

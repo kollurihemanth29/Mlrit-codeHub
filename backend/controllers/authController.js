@@ -58,7 +58,7 @@ const loginUser = async (req, res) => {
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = generateToken(user);
-    res.status(200).json({ token, role: user.role });
+    res.status(200).json({ token, role: user.role, userId: user._id });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Login failed", error: err.message });

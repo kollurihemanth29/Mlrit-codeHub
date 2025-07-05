@@ -9,8 +9,15 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
   try {
     const decoded = jwtDecode(token);
-    if (allowedRole && decoded.role !== allowedRole) {
-      return <Navigate to="/" replace />;
+    const userRole = decoded && decoded["role"];
+    if (allowedRole) {
+      if (Array.isArray(allowedRole)) {
+        if (!allowedRole.includes(userRole)) {
+          return <Navigate to="/" replace />;
+        }
+      } else if (userRole !== allowedRole) {
+        return <Navigate to="/" replace />;
+      }
     }
     return children;
   } catch (err) {

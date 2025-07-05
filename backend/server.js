@@ -19,7 +19,8 @@ const path = require("path");
 app.use("/api/auth", require("./routes/authRoutes"));          // Auth Routes
 app.use("/api/profile", require("./routes/profileRoutes"));    // Profile Routes
 app.use("/api/problems", require("./routes/problemRoutes"));   // Problems
-app.use("/api/courses", require("./routes/courseRoutes"));
+const courseRoutes = require('./routes/courseRoutes');
+app.use("/api/courses", courseRoutes);
 app.use("/api/contests", require("./routes/contestRoutes"));
 app.use("/api/contest-submissions", require("./routes/ContestsubmissionRoutes"));
 app.use("/api/submissions", require("./routes/submissionRoutes"));

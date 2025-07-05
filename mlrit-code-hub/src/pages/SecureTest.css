@@ -1,0 +1,285 @@
+/* SecureTest.css - Design System Theme */
+:root {
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --secondary: #3b82f6;
+  --background: #0f0f23;
+  --background-mid: #1a1a2e;
+  --background-light: #181824;
+  --card: #23234a;
+  --border: #2d2d4d;
+  --text-main: #f3f4f6;
+  --text-secondary: #bdbdfd;
+  --text-tertiary: #94a3b8;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+.securetest-bg {
+  min-height: 100vh;
+  min-width: 100vw;
+  background: linear-gradient(135deg, var(--background), var(--background-mid) 50%, var(--background-light));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  padding: 0;
+}
+
+.securetest-card {
+  background: linear-gradient(135deg, var(--card), var(--background-mid) 80%);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 2.5rem 2rem 2rem 2rem;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text-main);
+  position: relative;
+  animation: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.securetest-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  margin-bottom: 0.5rem;
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+.securetest-subtitle {
+  color: var(--text-tertiary);
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.securetest-alert {
+  background: var(--background-light);
+  border-left: 4px solid var(--secondary);
+  color: var(--secondary);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.securetest-header {
+  width: 100%;
+  border-radius: 0;
+  margin-bottom: 1.5rem;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+  padding: 1rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.securetest-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--secondary);
+}
+
+.securetest-indicator.secure {
+  color: var(--success);
+}
+.securetest-indicator.breach {
+  color: var(--danger);
+}
+
+.securetest-progress-bar {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-radius: 0;
+  border: none;
+  background: var(--background-light);
+}
+.securetest-progress {
+  height: 10px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary) 100%);
+  border-radius: 5px;
+  transition: width 0.3s;
+  animation: securetest-progress-grow 1.2s cubic-bezier(.4,1.4,.6,1);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.18);
+}
+
+.securetest-question-card {
+  width: 100%;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: none;
+  box-shadow: none;
+  background: var(--background-light);
+  padding: 2rem 1.5rem;
+  color: var(--text-main);
+}
+
+.securetest-question-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 1rem;
+}
+
+.securetest-options {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.securetest-option {
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  background: var(--background-mid);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--background-mid);
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s, transform 0.15s;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+.securetest-option:hover, .securetest-option.selected {
+  background: var(--primary);
+  border-color: var(--primary-dark);
+  color: #fff;
+}
+.securetest-option input[type="radio"] {
+  accent-color: var(--primary);
+  margin-right: 0.75rem;
+}
+
+.securetest-nav {
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.securetest-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(139,92,246,0.10);
+}
+.securetest-btn:hover {
+  background: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.18);
+}
+
+.securetest-btn.secondary {
+  background: var(--background-light);
+  color: var(--primary-light);
+  border: 1px solid var(--primary);
+}
+.securetest-btn.secondary:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.securetest-timer {
+  font-family: 'Fira Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--secondary);
+  background: var(--background-light);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 700;
+}
+
+.securetest-violation-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15,16,35,0.92);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: securetest-fade-in 0.5s cubic-bezier(.4,1.4,.6,1);
+}
+.securetest-violation-content {
+  background: linear-gradient(135deg, var(--card), var(--background-mid) 80%);
+  color: var(--text-main);
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(139,92,246,0.18);
+  text-align: center;
+  max-width: 400px;
+  border: 1.5px solid var(--border);
+}
+.securetest-violation-content h2 {
+  color: var(--danger);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.securetest-violation-content p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.securetest-violation-content .securetest-btn {
+  background: var(--danger);
+  color: #fff;
+  font-weight: 700;
+}
+.securetest-violation-content .securetest-btn:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .securetest-card {
+    padding: 1rem 0.5rem;
+    min-width: 100vw;
+  }
+  .securetest-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0.5rem;
+  }
+  .securetest-question-card {
+    padding: 1rem 0.5rem;
+  }
+}
+
+/* Accessibility focus states */
+.securetest-btn:focus, .securetest-btn.secondary:focus {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+@keyframes securetest-fade-in {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes securetest-progress-grow {
+  from { width: 0; }
+  to { width: var(--progress-width, 100%); }
+}
+
+@keyframes securetest-btn-pop {
+  0% { transform: scale(1); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+} 
