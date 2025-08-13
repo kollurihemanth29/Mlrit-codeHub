@@ -1,28 +1,107 @@
 const mongoose = require('mongoose');
 
-const ModuleSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  hasCode: { type: Boolean, default: false },
-  codeSnippet: { type: String },
-});
-
-const TestQuestionSchema = new mongoose.Schema({
+// MCQ Question Sub-Schema
+const mcqSchema = new mongoose.Schema({
   question: { type: String, required: true },
-  options: [{ type: String, required: true }],
-  correct: { type: Number, required: true }, // index of correct option
-});
+  options: {
+    type: [String],
+    required: true,
+    validate: v => v.length >= 2
+  },
+  correct: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: function(val) {
+        return val >= 0 && val < this.options.length;
+      },
+      message: 'Correct index must be within options range'
+    }
+  },
+  explanation: String
+}, { _id: false });
 
-const CourseSchema = new mongoose.Schema({
+// Coding Challenge Sub-Schema
+const codeChallengeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
-  duration: { type: String, default: '4 weeks' },
-  enrolledCount: { type: Number, default: 0 },
-  enrolledUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  modules: [ModuleSchema],
-  testUnlockThreshold: { type: Number, default: 80 }, // percentage
-  testQuestions: [TestQuestionSchema],
+  sampleInput: String,
+  sampleOutput: String,
+  constraints: String,
+  initialCode: String,
+  language: { type: String, default: 'python' },
+  testCases: [{
+    input: String,
+    expectedOutput: String,
+    isHidden: { type: Boolean, default: false }
+  }]
+}, { _id: false });
+
+// Lesson Sub-Schema (Strictly Enforcing Your Rules)
+const lessonSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['lesson'], 
+    default: 'lesson' 
+  },
+  content: { type: String, required: true }, // Theory section
+  review: { type: String, required: true },  // Review section
+  mcqs: {
+    type: [mcqSchema],
+    validate: {
+      validator: v => Array.isArray(v) && v.length === 2,
+      message: 'Each lesson must have exactly 2 MCQs'
+    },
+    required: true
+  },
+  codeChallenges: {
+    type: [codeChallengeSchema],
+    validate: {
+      validator: v => Array.isArray(v) && v.length === 2,
+      message: 'Each lesson must have exactly 2 coding challenges'
+    },
+    required: true
+  },
+  order: { type: Number, default: 0 },
+  duration: { type: String, default: '5-10 min' }
 });
 
-module.exports = mongoose.model('Course', CourseSchema);
+// Topic Sub-Schema
+const topicSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  order: { type: Number, required: true },
+  lessons: [lessonSchema],
+  moduleTest: {
+    mcqs: [mcqSchema],
+    codeChallenges: [codeChallengeSchema],
+    totalMarks: Number
+  }
+});
+
+// Unified Course Schema
+const courseSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  description: { type: String, required: true, trim: true },
+  difficulty: { type: String, enum: ['Easy', 'Medium', 'Hard'], default: 'Medium' },
+  topics: {
+    type: [topicSchema],
+    default: []
+  },
+  testUnlockThreshold: { type: Number, default: 80 },
+  enrolledUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  enrolledCount: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
+}, {
+  timestamps: true
+});
+
+// Auto-update enrolled count
+courseSchema.pre('save', function (next) {
+  this.enrolledCount = this.enrolledUsers.length;
+  next();
+});
+
+const Course = mongoose.model('Course', courseSchema);
+module.exports = Course;

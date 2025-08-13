@@ -37,8 +37,13 @@ import SolveContest from "./pages/SolveContestProblem";
 import SolveProblemSetProblem from "./pages/SolveProblemSetProblem";
 import CourseDetail from "./pages/CourseDetail";
 import ModuleDetail from "./pages/ModuleDetail";
+import ModuleDisplayNew from './pages/ModuleDisplayNew';
+import TopicView from "./pages/TopicView";
 import Courses from "./pages/Courses";
+import CourseCatalog from "./pages/CourseCatalog";
 import SecureTest from "./pages/SecureTest";
+import Dashboard from "./pages/Dashboard";
+import LessonPage from "./pages/LessonPage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -74,11 +79,13 @@ function App() {
 
   function AppContent() {
     const path = usePath();
-    // Hide Navbar on SecureTest page
+    // Hide Navbar on SecureTest and Lesson pages for immersive experience
     const isSecureTest = /^\/courses\/[^/]+\/test$/.test(path);
+    const isLessonPage = /^\/courses\/[^/]+\/topic\/[^/]+\/lesson\/[^/]+$/.test(path);
+    const hideNavbar = isSecureTest || isLessonPage;
     return (
       <>
-        {!isSecureTest && <Navbar />}
+        {!hideNavbar && <Navbar />}
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -115,9 +122,13 @@ function App() {
 
           {/* Course Routes */}
           <Route path="/courses/:id" element={<ProtectedRoute allowedRole={["student", "admin"]}><CourseDetail /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/topic/:topicId/lesson/:lessonId" element={<ProtectedRoute allowedRole={["student", "admin"]}><LessonPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/modules" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleDisplayNew /></ProtectedRoute>} />
           <Route path="/courses/:courseId/module/:moduleIndex" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleDetail /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/module/:moduleIndex/topic/:topicIndex" element={<ProtectedRoute allowedRole={["student", "admin"]}><TopicView /></ProtectedRoute>} />
           <Route path="/courses/:id/test" element={<ProtectedRoute allowedRole={["student", "admin"]}><SecureTest /></ProtectedRoute>} />
-          <Route path="/courses" element={<ProtectedRoute allowedRole={["student", "admin"]}><Courses /></ProtectedRoute>} />
+          <Route path="/courses" element={<ProtectedRoute allowedRole={["student", "admin"]}><CourseCatalog /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute allowedRole={["student", "admin"]}><Dashboard /></ProtectedRoute>} />
 
           {/* 404 Fallback */}
           <Route path="*" element={<Navigate to="/" />} />

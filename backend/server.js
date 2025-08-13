@@ -12,28 +12,26 @@ app.use(express.json());        // Parse incoming JSON requests
 
 // Test Route
 app.get("/", (req, res) => {
-  res.send("✅ MLRIT Code Hub Backend is Running!");
+  res.send(" MLRIT Code Hub Backend is Running!");
 });
 const path = require("path");
 // Main Routes
 app.use("/api/auth", require("./routes/authRoutes"));          // Auth Routes
 app.use("/api/profile", require("./routes/profileRoutes"));    // Profile Routes
 app.use("/api/problems", require("./routes/problemRoutes"));   // Problems
-const courseRoutes = require('./routes/courseRoutes');
-app.use("/api/courses", courseRoutes);
+app.use("/api/courses", require('./routes/courseRoutes'));
 app.use("/api/contests", require("./routes/contestRoutes"));
 app.use("/api/contest-submissions", require("./routes/ContestsubmissionRoutes"));
 app.use("/api/submissions", require("./routes/submissionRoutes"));
 app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
+app.use("/api/roadmaps", require("./routes/roadmapRoutes"));   // Roadmaps
+app.use("/api/progress", require("./routes/userProgressRoutes")); // Progress
 
 // Serve uploads statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Mount profile routesn
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
     app.listen(PORT, () => {

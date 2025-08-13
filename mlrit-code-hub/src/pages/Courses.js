@@ -13,8 +13,8 @@ const levelClass = {
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
-  const [progress, setProgress] = useState({});
-  const [expandedModule, setExpandedModule] = useState({});
+  const [progress, setProgress] = useState({}); // { [courseId]: progressDoc }
+  const [expandedTopic, setExpandedTopic] = useState({});
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
@@ -24,39 +24,56 @@ const Courses = () => {
   } catch {}
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/courses", { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        setCourses(res.data);
-      });
+    axios
+      .get("http://localhost:5000/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setCourses(res.data || []);
+      })
+      .catch(() => setCourses([]));
   }, [token]);
 
   useEffect(() => {
-    if (userRole === 'student' && userId) {
-      courses.forEach(course => {
-        axios.get(`http://localhost:5000/api/courses/${course._id}/progress?userId=${userId}`, { headers: { Authorization: `Bearer ${token}` } })
-          .then(res => setProgress(prev => ({ ...prev, [course._id]: res.data })))
-          .catch(() => {});
+    if (userRole === 'student' && userId && courses.length) {
+      courses.forEach((course) => {
+        axios
+          .get(
+            `http://localhost:5000/api/progress?userId=${userId}&courseId=${course._id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .then((res) =>
+            setProgress((prev) => ({ ...prev, [course._id]: res.data || {} }))
+          )
+          .catch(() => {
+            // ignore missing progress (not enrolled yet)
+          });
       });
     } else if (userRole === 'student' && !userId) {
       console.warn('User ID is missing. Progress will not be loaded.');
     }
   }, [courses, token, userId, userRole]);
 
-  // Dashboard stats
+  // Dashboard stats (topics-based)
   const totalCourses = courses.length;
-  let totalModulesCompleted = 0;
+  let totalTopicsCompleted = 0;
   let totalTestsUnlocked = 0;
-  courses.forEach(c => {
-    const prog = progress[c._id] || { completedModules: [] };
-    totalModulesCompleted += prog.completedModules ? prog.completedModules.length : 0;
-    const percent = c.modules.length ? Math.round(((prog.completedModules ? prog.completedModules.length : 0) / c.modules.length) * 100) : 0;
+  courses.forEach((c) => {
+    const prog = progress[c._id] || {};
+    const topics = c.topics || [];
+    const completedTopics = (prog.topicsProgress || []).filter((t) => t.completed).length;
+    totalTopicsCompleted += completedTopics;
+    const percent = typeof prog.overallProgress === 'number'
+      ? prog.overallProgress
+      : topics.length
+        ? Math.round((completedTopics / topics.length) * 100)
+        : 0;
     if (percent >= (c.testUnlockThreshold || 80)) totalTestsUnlocked++;
   });
 
   const handleResume = (course, prog) => {
-    const nextIdx = course.modules.findIndex((_, idx) => !prog.completedModules || !prog.completedModules.includes(idx));
-    if (nextIdx !== -1) navigate(`/courses/${course._id}/module/${nextIdx}`);
-    else navigate(`/courses/${course._id}`);
+    // Navigate to course detail; within detail user can continue from last topic/lesson
+    navigate(`/courses/${course._id}`);
   };
 
   return (
@@ -80,75 +97,83 @@ const Courses = () => {
       ) : (
         <>
           <div className="courses-list">
-            {courses.map(c => {
-              const prog = progress[c._id] || { completedModules: [], testAttempt: { completed: false } };
-              const totalModules = c.modules.length;
-              const completed = prog.completedModules ? prog.completedModules.length : 0;
-              const percent = totalModules ? Math.round((completed / totalModules) * 100) : 0;
+            {courses.map((c) => {
+              const prog = progress[c._id] || {};
+              const topics = c.topics || [];
+              const completedTopics = (prog.topicsProgress || []).filter((t) => t.completed).length;
+              const percent = typeof prog.overallProgress === 'number'
+                ? prog.overallProgress
+                : topics.length
+                  ? Math.round((completedTopics / topics.length) * 100)
+                  : 0;
               const testUnlocked = percent >= (c.testUnlockThreshold || 80);
-              const isCompleted = completed === totalModules;
+              const isCompleted = topics.length > 0 && completedTopics === topics.length;
               return (
-                <div key={c._id} className="course-card">
+                <div key={c._id} className="course-card pro">
                   <div className="course-card-header">
                     <span className="course-card-title">{c.title}</span>
-                    <span className={levelClass[c.level] || 'course-card-badge'}>{c.level}</span>
-                    {isCompleted && <span className="course-card-badge" style={{ background: '#22c55e' }}>🏅 Completed</span>}
+                    <span className={levelClass[c.difficulty] || 'course-card-badge'}>{c.difficulty}</span>
+                    {isCompleted && (
+                      <span className="course-card-badge" style={{ background: '#22c55e' }}>🏅 Completed</span>
+                    )}
                   </div>
                   <div className="course-card-desc">{c.description}</div>
                   <div className="course-card-meta">
-                    <span>⏱ {c.duration}</span>
-                    <span>👥 {c.enrolledCount} students</span>
-                    <span>📚 {c.modules.length} modules</span>
+                    <span>⏱ {c.duration || '2-3 hours'}</span>
+                    <span>👥 {c.enrolledCount || 0} students</span>
+                    <span>📚 {topics.length} topics</span>
                   </div>
                   <div className="course-card-progress-label">Progress</div>
                   <div className="course-card-progress-bar">
                     <div className="course-card-progress" style={{ width: `${percent}%` }}></div>
                   </div>
-                  <div className="course-card-progress-info">{completed}/{totalModules} modules</div>
+                  <div className="course-card-progress-info">{completedTopics}/{topics.length} topics</div>
                   <div className="course-card-progress-info">{percent}% complete</div>
-                  <div className="course-card-stepper">
-                    {c.modules.slice(0, 5).map((mod, idx) => (
-                      <React.Fragment key={idx}>
-                        <div className="course-card-step">
-                          <div className={`course-card-step-circle${(prog.completedModules && prog.completedModules.includes(idx)) ? ' completed' : ''}`} onClick={() => setExpandedModule({ ...expandedModule, [c._id]: idx })} style={{ cursor: 'pointer' }}>
-                            {(prog.completedModules && prog.completedModules.includes(idx)) ? '✓' : idx + 1}
-                          </div>
-                          <div className="course-card-step-label" title={mod.title}>{mod.title}</div>
-                          {expandedModule[c._id] === idx && (
-                            <div className="course-card-step-label" style={{ background: '#f7f9fb', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8, marginTop: 4, zIndex: 10, position: 'absolute', left: 0, minWidth: 180 }}>
-                              <div style={{ fontWeight: 600 }}>{mod.title}</div>
-                              <div style={{ color: '#a78bfa', fontSize: 13 }}>{mod.description}</div>
-                              {mod.hasCode && <pre style={{ background: '#23234a', color: '#a78bfa', borderRadius: 6, padding: 6, marginTop: 4 }}>{mod.codeSnippet}</pre>}
-                              <Button style={{ marginTop: 6 }} onClick={() => navigate(`/courses/${c._id}/module/${idx}`)}>Go to Module</Button>
-                              <Button style={{ marginTop: 6, marginLeft: 8 }} onClick={() => setExpandedModule({ ...expandedModule, [c._id]: undefined })}>Close</Button>
-                            </div>
-                          )}
-                        </div>
-                        {idx < Math.min(4, c.modules.length - 1) && (
-                          <div className={`course-card-step-line${(prog.completedModules && prog.completedModules.includes(idx)) ? ' completed' : ''}`}></div>
-                        )}
-                      </React.Fragment>
+                  <div className="course-card-chips">
+                    {(topics.slice(0, 6)).map((t, idx) => (
+                      <div
+                        key={t._id || idx}
+                        className={`chip ${ (prog.topicsProgress || []).find(tp => tp.topicId === (t._id?.toString?.() || t._id || t.id))?.completed ? 'completed' : ''}`}
+                        title={t.title}
+                        onClick={() => setExpandedTopic({ ...expandedTopic, [c._id]: t._id || idx })}
+                      >
+                        {t.title}
+                      </div>
                     ))}
-                    {c.modules.length > 5 && (
-                      <div className="course-card-step-label" style={{ marginLeft: 8, color: '#bdbdfd' }}>...+{c.modules.length - 5} more</div>
+                    {topics.length > 6 && (
+                      <div className="chip more">+{topics.length - 6} more</div>
                     )}
                   </div>
+                  {expandedTopic[c._id] && (
+                    <div className="topic-popover">
+                      {(() => {
+                        const tIdx = topics.findIndex(t => (t._id || '').toString() === (expandedTopic[c._id] || '').toString());
+                        const topic = tIdx >= 0 ? topics[tIdx] : null;
+                        return topic ? (
+                          <>
+                            <div className="topic-popover-title">{topic.title}</div>
+                            {topic.description && (
+                              <div className="topic-popover-desc">{topic.description}</div>
+                            )}
+                            <Button style={{ marginTop: 6 }} onClick={() => navigate(`/courses/${c._id}`)}>Open Course</Button>
+                            <Button style={{ marginTop: 6, marginLeft: 8 }} onClick={() => setExpandedTopic({ ...expandedTopic, [c._id]: undefined })}>Close</Button>
+                          </>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
                   <div className="course-card-actions">
                     <Button className="course-card-btn secondary" onClick={() => handleResume(c, prog)}>
                       {isCompleted ? 'Review Course' : 'Resume'}
                     </Button>
-                    {testUnlocked && !prog.testAttempt?.completed && (
-                      <Button className="course-card-btn" style={{ background: '#22c55e' }} onClick={() => navigate(`/courses/${c._id}/test`)}>
-                        <span role="img" aria-label="trophy">🏆</span> Take Test
-                      </Button>
-                    )}
-                    {testUnlocked && prog.testAttempt?.completed && (
-                      <Button className="course-card-btn locked" disabled>
-                        <span role="img" aria-label="trophy">🏆</span> Test Completed
-                      </Button>
-                    )}
-                    {!testUnlocked && (
-                      <div className="course-card-btn locked flex items-center text-xs gap-1" style={{ background: '#e5e7eb', color: '#bdbdfd' }}><span role="img" aria-label="lock">🔒</span> {c.testUnlockThreshold || 80}% required</div>
+                    {testUnlocked ? (
+                      <div className="course-card-badge" style={{ background: '#22c55e' }}>
+                        <span role="img" aria-label="trophy">🏆</span> Test Unlocked
+                      </div>
+                    ) : (
+                      <div className="course-card-btn locked flex items-center text-xs gap-1" style={{ background: '#e5e7eb', color: '#bdbdfd' }}>
+                        <span role="img" aria-label="lock">🔒</span> {c.testUnlockThreshold || 80}% required
+                      </div>
                     )}
                   </div>
                 </div>
@@ -166,8 +191,8 @@ const Courses = () => {
             <div className="courses-dashboard-card">
               <span className="courses-dashboard-icon" style={{ color: '#22c55e' }}>✅</span>
               <div>
-                <div className="courses-dashboard-value">{totalModulesCompleted}</div>
-                <div className="courses-dashboard-label">Modules Completed</div>
+                <div className="courses-dashboard-value">{totalTopicsCompleted}</div>
+                <div className="courses-dashboard-label">Topics Completed</div>
               </div>
             </div>
             <div className="courses-dashboard-card">

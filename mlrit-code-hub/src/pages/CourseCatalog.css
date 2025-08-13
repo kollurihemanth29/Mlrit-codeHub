@@ -1,0 +1,710 @@
+/* CourseCatalog.css - Exact Template Match */
+
+/* Main Container */
+.template-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.template-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left Sidebar - Exact Template Styling */
+.template-sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Categories Section */
+.categories-section {
+  margin-bottom: 32px;
+}
+
+.categories-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.categories-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item-template {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.category-item-template:hover {
+  background-color: #f1f5f9;
+}
+
+.category-item-template.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.category-content {
+  display: flex;
+  align-items: center;
+}
+
+.category-icon {
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+.category-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-count-template {
+  background-color: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.category-item-template.active .category-count-template {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Filter Sections */
+.filter-section-template {
+  margin-bottom: 32px;
+}
+
+.filter-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  margin-right: 12px;
+  accent-color: #3b82f6;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* Topics Grid */
+.topics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-tag {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.topic-tag:hover {
+  background-color: #e2e8f0;
+}
+
+.topic-tag.selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Clear Filters Button */
+.clear-filters-template {
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.clear-filters-template:hover {
+  color: #475569;
+}
+
+/* Right Main Content */
+.template-main {
+  flex: 1;
+  padding: 32px;
+  background-color: #f8fafc;
+}
+
+/* Header */
+.main-header {
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Controls Bar */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.search-wrapper {
+  position: relative;
+  max-width: 400px;
+  flex: 1;
+}
+
+.search-icon-template {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.search-input-template {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.search-input-template:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.view-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.view-btn {
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  background-color: #f8fafc;
+}
+
+.view-btn.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.view-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Results Count */
+.results-count {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+/* Course Grid */
+.courses-grid-template {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* Course Card */
+.course-card-template {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.course-card-template:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Roadmap Card */
+.roadmap-card-template {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.roadmap-card-template:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Roadmap Header */
+.roadmap-header {
+  padding: 24px;
+  color: white;
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.roadmap-badge {
+  align-self: flex-start;
+}
+
+.roadmap-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.roadmap-duration,
+.roadmap-courses {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Roadmap Content */
+.roadmap-content {
+  padding: 24px;
+}
+
+.roadmap-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.roadmap-description {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* Roadmap Progress */
+.roadmap-progress {
+  margin-bottom: 20px;
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-percentage {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.progress-bar-roadmap {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill-roadmap {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.completed {
+  color: #059669;
+  font-weight: 600;
+}
+
+.remaining {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Roadmap Tags */
+.roadmap-tags {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roadmap-tag {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+/* Roadmap Action Button */
+.roadmap-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.roadmap-action-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.difficulty-badge-template {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.difficulty-badge-template.beginner {
+  background-color: #10b981;
+}
+
+.difficulty-badge-template.intermediate {
+  background-color: #f59e0b;
+}
+
+.difficulty-badge-template.advanced {
+  background-color: #ef4444;
+}
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-icon-template {
+  width: 16px;
+  height: 16px;
+}
+
+.rating-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Course Content */
+.course-title-template {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.course-desc-template {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Progress Section */
+.progress-section {
+  margin-bottom: 16px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-label-template {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.progress-percent {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.progress-bar-template {
+  width: 100%;
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill-template {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+/* Course Meta */
+.course-meta-template {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.meta-item-template {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-icon-template {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.meta-item-template span {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Tags Section */
+.tags-section {
+  margin-bottom: 20px;
+}
+
+.course-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 8px;
+  margin-bottom: 4px;
+}
+
+/* Action Button */
+.course-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.course-action-btn:hover {
+  background-color: #2563eb;
+}
+
+.play-icon-template {
+  width: 16px;
+  height: 16px;
+}
+
+/* No Results */
+.no-results-template {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.no-results-icon-template {
+  margin-bottom: 16px;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  color: #94a3b8;
+  margin: 0 auto;
+}
+
+.no-results-title-template {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.no-results-text-template {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .template-layout {
+    flex-direction: column;
+  }
+  
+  .template-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .courses-grid-template {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .template-main {
+    padding: 16px;
+  }
+  
+  .controls-bar {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .search-wrapper {
+    max-width: none;
+  }
+  
+  .courses-grid-template {
+    grid-template-columns: 1fr;
+  }
+}
