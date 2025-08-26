@@ -1,6 +1,569 @@
+/* Global dark mode across entire lesson page */
+.lesson-page.dark-mode {
+  background: #1d1e23 !important;
+  color: #ffffff;
+}
+.lesson-page.dark-mode .dark-progress-navbar,
+.lesson-page.dark-mode .lesson-content,
+.lesson-page.dark-mode .step-container,
+.lesson-page.dark-mode .step-content {
+  background: #1d1e23 !important;
+  color: #ffffff;
+}
+
+/* Header between navbar and content: match tabs bar */
+.lesson-page.dark-mode .step-header {
+  background: #23262e !important;
+  border-bottom: 1px solid #2a2b31 !important;
+  margin: 0;
+  padding: 10px 16px;
+}
+.lesson-page.dark-mode .step-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Flush layout: remove container blocks/padding */
+.lesson-page.dark-mode .step-container {
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.lesson-page.dark-mode .lesson-content {
+  padding: 0 16px !important; /* keep small horizontal breathing */
+}
+
+/* Unify split layout panels (solve + mcq) with theory bg - no blocks */
+.lesson-page.dark-mode .solve-container,
+.lesson-page.dark-mode .solve-left,
+.lesson-page.dark-mode .solve-right,
+.lesson-page.dark-mode .left-tabs,
+.lesson-page.dark-mode .right-tabs,
+.lesson-page.dark-mode .solve-content {
+  background: #1d1e23 !important;
+  color: #ffffff;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.lesson-page.dark-mode .left-tabs button,
+.lesson-page.dark-mode .right-tabs button {
+  color: #ffffff;
+}
+
+.lesson-page.dark-mode .resizer {
+  background: #333; /* match solve page */
+  align-self: stretch; /* span full height */
+  height: auto;
+  width: 4px; /* match solve page width */
+  cursor: col-resize;
+  position: relative; /* for center handle */
+}
+
+.lesson-page.dark-mode .resizer:hover {
+  background: #4d4d4d; /* match solve page hover */
+}
+
+.lesson-page.dark-mode .resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 30px;
+  background: #4d4d4d;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.lesson-page.dark-mode .resizer:hover::after {
+  opacity: 1;
+}
+
+/* Ensure split container height matches solve page behavior */
+.lesson-page.dark-mode .solve-container {
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* MCQ containers: no separate boxes */
+.lesson-page.dark-mode .mcq-left,
+.lesson-page.dark-mode .mcq-right,
+.lesson-page.dark-mode .mcq-question-box,
+.lesson-page.dark-mode .mcq-statement-header {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.lesson-page.dark-mode .mcq-statement-body { padding: 24px; }
+
+/* MCQ Left Panel Content Styling */
+.mcq-statement-title {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+  line-height: 1.3;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.mcq-statement-question {
+  margin: 24px 0;
+}
+
+.mcq-statement-question p {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.mcq-statement-hint {
+  color: #cbd5e1;
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #fbbf24;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.mcq-statement-hint strong {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Left panel: separate sections with dividers */
+.mcq-statement-body > * + * {
+  border-top: 1px solid #2a2b31;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+/* Common doubts section styling */
+.mcq-doubts-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px 0;
+}
+.doubts-icon {
+  font-size: 16px;
+}
+.doubts-label {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Feedback section styling */
+.mcq-feedback-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2b31;
+}
+.mcq-feedback-section p {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+.feedback-actions {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.feedback-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.feedback-btn:hover {
+  background: #2a2b31;
+}
+.feedback-text {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
+/* Tabs minimal look - underline active only */
+.lesson-page.dark-mode .left-tabs,
+.lesson-page.dark-mode .right-tabs {
+  background: #23262e !important;
+  border: none !important;
+  border-bottom: 1px solid #2a2b31 !important;
+}
+.lesson-page.dark-mode .left-tabs button,
+.lesson-page.dark-mode .right-tabs button {
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 10px !important;
+  opacity: 0.8;
+}
+.lesson-page.dark-mode .left-tabs .active-tab,
+.lesson-page.dark-mode .right-tabs .active-tab {
+  opacity: 1;
+  border-bottom: 2px solid #b3b8c6 !important; /* neutral gray underline */
+}
+
+/* Resizer slim */
+.lesson-page.dark-mode .resizer {
+  width: 4px;
+  cursor: col-resize;
+}
+
+/* MCQ Right Panel Styling - Match Image */
+.mcq-question-box {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mcq-question-title {
+  color: #ffffff;
+  font-size: 24px; /* increased per request */
+  font-weight: 400;
+  margin: 0 0 32px 0;
+  line-height: 1.4;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-height: 0; /* allow shrinking inside flex column */
+  overflow-y: auto; /* scroll within options block */
+  max-height: 40vh; /* cap height so list scrolls within block */
+}
+
+.mcq-option-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: transparent;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.mcq-option-tile:hover:not(:disabled) {
+  border-color: #718096;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mcq-option-tile.selected {
+  border-color: #3182ce;
+  background: rgba(49, 130, 206, 0.1);
+}
+
+.mcq-option-tile .radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #6b7280; /* gray */
+  border-radius: 4px; /* square corners like checkbox */
+  flex-shrink: 0;
+  position: relative;
+  background: transparent;
+}
+
+.mcq-option-tile.selected .radio {
+  border-color: #3182ce;
+  background: rgba(49,130,206,0.12);
+}
+
+.mcq-option-tile.selected .radio::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border-right: 2px solid #3182ce;
+  border-bottom: 2px solid #3182ce;
+  transform: rotate(45deg);
+}
+
+.mcq-option-tile .label {
+  flex: 1;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; /* match theory page */
+}
+
+/* Hint text under question title */
+.mcq-question-hint {
+  margin-top: -20px;
+  margin-bottom: 24px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+/* Sticky footer actions like screenshot */
+.mcq-actions {
+  position: fixed;
+  bottom: calc(24px + 1cm); /* 1cm higher from bottom */
+  right: 24px; /* right corner positioning */
+  background: transparent; /* remove background for corner placement */
+  border: none; /* remove border for cleaner corner look */
+  padding: 0;
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  z-index: 1000; /* ensure buttons stay on top */
+}
+.mcq-submit-btn {
+  background: #2563eb; /* image2 blue */
+  color: #ffffff;
+  border: 2px solid #2b6df0;
+  padding: 12px 28px; /* larger button */
+  font-size: 16px; /* larger text */
+  font-weight: 600;
+  border-radius: 6px;
+}
+.mcq-submit-btn:hover { 
+  background: #1e55cd; 
+  border-color: #1d4ed8;
+}
+.mcq-next-btn {
+  background: #f3f4f6; /* white-like */
+  color: #111827;
+  border: 2px solid #cbd5e1;
+  padding: 12px 28px; /* larger button */
+  font-size: 16px; /* larger text */
+  font-weight: 600;
+  border-radius: 6px;
+}
+.mcq-next-btn:hover { 
+  background: #e5e7eb; 
+  border-color: #9ca3af;
+}
+
+/* MCQ Explanation panel (shown on correct answer) */
+.mcq-explanation {
+  display: flex;
+  margin-top: 16px;
+  border: 1px solid #2a2b31;
+  border-radius: 8px;
+  background: #1f232b; /* slightly lighter than page bg */
+  overflow: hidden;
+  max-height: 200px; /* Limit height to maintain single-page layout */
+}
+.mcq-expl-sidebar {
+  width: 6px;
+  background: #10b981; /* emerald green for correct */
+  flex-shrink: 0;
+}
+.mcq-expl-content {
+  padding: 14px 16px;
+  flex: 1;
+  overflow-y: auto; /* content can scroll if needed */
+  scrollbar-width: none; /* Firefox - hide */
+}
+.mcq-expl-content::-webkit-scrollbar {
+  width: 0 !important; /* Chrome/Safari/Edge - hide */
+  height: 0 !important;
+}
+.mcq-expl-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.mcq-expl-content p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+/* Main Page Styles - CodeChef Dark Theme */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+/* Force full black background for Theory step */
+.lesson-page.theory-black {
+  background: #1d1e23 !important;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.lesson-page.theory-black .lesson-content,
+.lesson-page.theory-black .course-sidebar,
+.lesson-page.theory-black .modules-list,
+.lesson-page.theory-black .module-section,
+.lesson-page.theory-black .module-lessons,
+.lesson-page.theory-black .step-container,
+.lesson-page.theory-black .step-content,
+.lesson-page.theory-black .theory-step-simple,
+.lesson-page.theory-black .theory-content-simple,
+.lesson-page.theory-black .theory-body-simple {
+  background: #1d1e23 !important;
+  color: #ffffff !important;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.lesson-page.theory-black .dark-progress-navbar {
+  background: #1d1e23 !important;
+  border-bottom-color: #222 !important;
+}
+.lesson-page.theory-black .next-lesson-btn {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+:before, :after {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+body {
+  background-color: #1d1e23;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px !important;
+  line-height: 1.6;
+  color: #ffffff;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden; /* allow vertical scroll globally */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.lesson-page-container {
+  background-color: #1d1e23;
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Open Sans', serif;
+  height: 100vh;
+  overflow: auto; /* allow page to scroll except when mcq-no-scroll is applied */
+}
+
+/* Hide scrollbars ONLY on MCQ page - fit content in single viewport */
+.lesson-content.mcq-no-scroll {
+  height: 100vh;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-content.mcq-no-scroll .step-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.lesson-content.mcq-no-scroll .step-content {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Update the split container for better height management */
+.lesson-content.mcq-no-scroll .solve-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Ensure panels use available space efficiently */
+.lesson-content.mcq-no-scroll .solve-left,
+.lesson-content.mcq-no-scroll .solve-right {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content areas should scroll if needed but hide scrollbars */
+.lesson-content.mcq-no-scroll .solve-content,
+.lesson-content.mcq-no-scroll .mcq-question-box {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.lesson-content.mcq-no-scroll .solve-content::-webkit-scrollbar,
+.lesson-content.mcq-no-scroll .mcq-question-box::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
+}
+
+/* Hide all other scrollbars */
+.lesson-content.mcq-no-scroll * {
+  scrollbar-width: none; /* Firefox */
+}
+.lesson-content.mcq-no-scroll *::-webkit-scrollbar { /* Chrome/Safari */
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* EXCEPTION: show scrollbar for options list */
+.lesson-content.mcq-no-scroll .mcq-options {
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #4a5568 #1d1e23; /* thumb track */
+}
+.lesson-content.mcq-no-scroll .mcq-options::-webkit-scrollbar {
+  width: 6px !important; /* Chrome/Safari */
+}
+.lesson-content.mcq-no-scroll .mcq-options::-webkit-scrollbar-track {
+  background: #1d1e23;
+}
+.lesson-content.mcq-no-scroll .mcq-options::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 3px;
+}
+.lesson-content.mcq-no-scroll .mcq-options::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Scrollbar Styles */
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+/* Globally hide scrollbars within lesson page */
+.lesson-page-container,
+.lesson-page.dark-mode {
+  overflow: hidden !important; /* prevent page scrollbars */
+}
+.lesson-page-container * {
+  scrollbar-width: none; /* Firefox */
+}
+.lesson-page-container *::-webkit-scrollbar { /* Chrome/Safari/Edge */
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
 /* Dark Progress Navigation Bar Styles - Exact Match */
 .dark-progress-navbar {
-  background: #2d3748;
+  background: #1a1a1a;
   border-bottom: 1px solid #4a5568;
   position: sticky;
   top: 0;
@@ -390,8 +953,36 @@
 .pending-dot {
   width: 8px;
   height: 8px;
-  background: #718096;
+  background: #6b7280;
   border-radius: 50%;
+}
+
+.test-dot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  animation: testPulse 2s infinite;
+}
+
+@keyframes testPulse {
+  0%, 100% { 
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+    transform: scale(1.1);
+  }
+}
+
+.test-item .lesson-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #f59e0b;
+  font-weight: 600;
 }
 
 .lesson-title {
@@ -592,9 +1183,551 @@
   padding: 2rem;
 }
 
-/* Theory Step Styles */
-.theory-step {
+/* Simple Theory Step Styles - CodeChef Dark Theme */
+.theory-step-simple {
+  background: #1d1e23;
+  background-image: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: #ffffff;
+  font-family: 'Open Sans', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
   max-width: none;
+  margin: 0;
+  width: 100%;
+}
+
+.theory-content-simple {
+  padding: 0 3rem 2.5rem 3rem;
+  position: relative;
+  min-height: 60vh;
+}
+
+.theory-body-simple {
+  line-height: 1.6;
+  font-size: 14px;
+  color: #ffffff;
+  font-family: 'Open Sans', serif;
+  padding: 0 0 1.5rem 0;
+  overflow-y: visible;
+  max-height: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Match reference: ensure all content elements inherit the same color */
+.theory-body-simple h1,
+.theory-body-simple h2,
+.theory-body-simple h3,
+.theory-body-simple h4,
+.theory-body-simple p,
+.theory-body-simple ul li,
+.theory-body-simple ol li,
+.theory-body-simple pre,
+.theory-body-simple table td {
+  color: #ffffff;
+}
+
+/* Ensure absolutely all nested text inside theory content is white */
+.theory-body-simple *,
+.theory-body-simple {
+  color: #ffffff !important;
+}
+.theory-body-simple a,
+.theory-body-simple a:visited,
+.theory-body-simple a:hover,
+.theory-body-simple a:active {
+  color: #ffffff !important;
+  text-decoration-color: #ffffff66;
+}
+.theory-body-simple li::marker {
+  color: #ffffff !important;
+}
+
+/* Code syntax highlighting for theory content */
+.theory-body-simple pre,
+.theory-body-simple code {
+  background: #2a2d3a !important;
+  border: 1px solid #3a3d4a;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.theory-body-simple pre {
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.theory-body-simple code {
+  padding: 2px 4px;
+  color: #e6db74 !important; /* Yellow for inline code */
+}
+
+.theory-body-simple pre code {
+  background: transparent !important;
+  border: none;
+  padding: 0;
+  color: #f8f8f2 !important; /* Light gray for code blocks */
+}
+
+/* HTML syntax highlighting */
+.theory-body-simple pre code .html-tag {
+  color: #f92672 !important; /* Pink for HTML tags */
+}
+
+.theory-body-simple pre code .html-attr {
+  color: #a6e22e !important; /* Green for attributes */
+}
+
+.theory-body-simple pre code .html-string {
+  color: #e6db74 !important; /* Yellow for strings */
+}
+
+.theory-body-simple pre code .html-comment {
+  color: #75715e !important; /* Gray for comments */
+}
+
+.theory-navigation {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10;
+}
+
+/* ============================= */
+/* MCQ Split Layout - Dark Theme */
+/* ============================= */
+.mcq-step-split {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+  width: 100%;
+  padding: 0 16px 24px;
+}
+
+.mcq-left {
+  background: #1d1e23;
+  border: 1px solid #2a2b31;
+  border-radius: 6px;
+}
+
+.mcq-statement-header {
+  padding: 10px 14px;
+  background: #22232a;
+  border-bottom: 1px solid #2a2b31;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.mcq-statement-body {
+  padding: 16px;
+  color: #ffffff;
+}
+
+.mcq-doubts {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.doubt-chip {
+  padding: 6px 10px;
+  background: #24262f;
+  border: 1px solid #2f313a;
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.mcq-right {
+  background: #1d1e23;
+  border: 1px solid #2a2b31;
+  border-radius: 6px;
+  display: flex;
+}
+
+.mcq-question-box {
+  padding: 16px;
+  width: 100%;
+}
+
+.mcq-question-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mcq-option-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #23252e;
+  border: 1px solid #2e3039;
+  border-radius: 8px;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.mcq-option-tile:hover:not(:disabled) {
+  background: #272a34;
+  border-color: #3a3d49;
+}
+
+.mcq-option-tile .radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #6b7280;
+  background: transparent;
+}
+
+.mcq-option-tile.selected .radio {
+  border-color: #b3b8c6; /* neutral gray */
+  box-shadow: inset 0 0 0 4px #1d1e23, 0 0 0 2px #b3b8c6;
+}
+
+.mcq-option-tile.correct {
+  background: #203524;
+  border-color: #2d6a34;
+}
+
+.mcq-option-tile.incorrect {
+  background: #3a2020;
+  border-color: #6a2d2d;
+}
+
+.mcq-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 12px 0;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.mcq-banner.error {
+  background: #3a2020;
+  border-color: #6a2d2d;
+  color: #ffffff;
+}
+
+.banner-icon { margin-right: 8px; }
+.banner-text { flex: 1; }
+.banner-action {
+  background: #2f3542;
+  color: #ffffff;
+  border: 1px solid #3b4150;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.mcq-solution {
+  margin-top: 14px;
+  border-top: 1px solid #2a2b31;
+  background: transparent;
+  border-radius: 0;
+}
+.solution-header {
+  padding: 8px 0;
+  color: #e4f5e7;
+  font-weight: 600;
+  border-bottom: 1px solid #2a2b31;
+}
+.solution-body { padding: 8px 0; color: #ffffff; }
+.solution-title { font-weight: 600; margin-bottom: 6px; }
+.solution-explanation { margin-top: 8px; }
+.explanation-title { font-weight: 600; margin-bottom: 4px; }
+
+.mcq-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mcq-submit-btn {
+  background: #1d4ed8;
+  color: #ffffff;
+  border: 1px solid #2959d9;
+  padding: 8px 14px;
+  border-radius: 4px;
+}
+
+.mcq-next-btn {
+  background: #374151;
+  color: #ffffff;
+  border: 1px solid #4b5563;
+  padding: 8px 14px;
+  border-radius: 4px;
+}
+
+@media (max-width: 960px) {
+  .mcq-step-split { grid-template-columns: 1fr; }
+  .mcq-left, .mcq-right { width: 100%; }
+}
+
+.next-lesson-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.next-lesson-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+
+.next-lesson-btn:disabled {
+  background: #4f46e580;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Typography Styles */
+.theory-body-simple h1 {
+  color: #1a202c;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+  line-height: 1.2;
+}
+
+.theory-body-simple h2 {
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 3rem 0 1.5rem 0;
+  line-height: 1.3;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.theory-body-simple h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 2.5rem 0 1rem 0;
+  line-height: 1.4;
+}
+
+.theory-body-simple h4 {
+  color: #4a5568;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.theory-body-simple h5,
+.theory-body-simple h6 {
+  color: #4a5568;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+/* Paragraph and Text Styles */
+.theory-body-simple p {
+  margin-bottom: 1.5rem;
+  color: #4a5568;
+  line-height: 1.8;
+}
+
+.theory-body-simple strong {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.theory-body-simple em {
+  font-style: italic;
+  color: #4a5568;
+}
+
+/* List Styles */
+.theory-body-simple ul,
+.theory-body-simple ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.theory-body-simple li {
+  margin-bottom: 0.75rem;
+  color: #4a5568;
+  line-height: 1.7;
+}
+
+.theory-body-simple ul li {
+  list-style-type: disc;
+}
+
+.theory-body-simple ol li {
+  list-style-type: decimal;
+}
+
+/* Code Styles */
+.theory-body-simple code {
+  background: #f7fafc;
+  color: #e53e3e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  border: 1px solid #e2e8f0;
+}
+
+.theory-body-simple pre {
+  background: #f7fafc;
+  color: #2d3748;
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid #e2e8f0;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.theory-body-simple pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Blockquote Styles */
+.theory-body-simple blockquote {
+  background: #f0fff4;
+  border-left: 4px solid #48bb78;
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #2f855a;
+}
+
+.theory-body-simple blockquote p {
+  margin: 0;
+  color: #2f855a;
+}
+
+/* Table Styles */
+.theory-body-simple table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.theory-body-simple th {
+  background: #4f46e5;
+  color: #ffffff;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.theory-body-simple td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.theory-body-simple tr:last-child td {
+  border-bottom: none;
+}
+
+.theory-body-simple tr:nth-child(even) {
+  background: #f7fafc;
+}
+
+/* Link Styles */
+.theory-body-simple a {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.theory-body-simple a:hover {
+  color: #3730a3;
+  border-bottom-color: #3730a3;
+}
+
+/* Image Styles */
+.theory-body-simple img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 2rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theory-content-simple {
+    padding: 2rem 1.5rem;
+  }
+  
+  .theory-body-simple {
+    font-size: 1rem;
+  }
+  
+  .theory-body-simple h1 {
+    font-size: 2rem;
+  }
+  
+  .theory-body-simple h2 {
+    font-size: 1.5rem;
+  }
+  
+  .theory-body-simple h3 {
+    font-size: 1.25rem;
+  }
+  
+  .theory-body-simple ul,
+  .theory-body-simple ol {
+    padding-left: 1.5rem;
+  }
+  
+  .theory-body-simple pre {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
 }
 
 .theory-content {

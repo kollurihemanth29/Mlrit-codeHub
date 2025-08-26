@@ -80,6 +80,39 @@ const topicSchema = new mongoose.Schema({
   }
 });
 
+// Final Course Exam Schema
+const finalExamSchema = new mongoose.Schema({
+  title: { type: String, default: 'Final Course Assessment' },
+  description: { type: String, default: 'Comprehensive assessment covering all course topics' },
+  mcqs: {
+    type: [mcqSchema],
+    validate: {
+      validator: v => Array.isArray(v) && v.length >= 10,
+      message: 'Final exam must have at least 10 MCQs'
+    }
+  },
+  codeChallenges: {
+    type: [codeChallengeSchema],
+    validate: {
+      validator: v => Array.isArray(v) && v.length >= 3,
+      message: 'Final exam must have at least 3 coding challenges'
+    }
+  },
+  totalMarks: { type: Number, default: 1000 },
+  duration: { type: Number, default: 120 }, // minutes
+  passingScore: { type: Number, default: 70 }, // percentage
+  isSecure: { type: Boolean, default: true },
+  securitySettings: {
+    preventCopyPaste: { type: Boolean, default: true },
+    preventTabSwitch: { type: Boolean, default: true },
+    preventRightClick: { type: Boolean, default: true },
+    fullScreenRequired: { type: Boolean, default: true },
+    webcamMonitoring: { type: Boolean, default: false },
+    timeLimit: { type: Number, default: 120 } // minutes
+  },
+  isActive: { type: Boolean, default: true }
+});
+
 // Unified Course Schema
 const courseSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
@@ -88,6 +121,10 @@ const courseSchema = new mongoose.Schema({
   topics: {
     type: [topicSchema],
     default: []
+  },
+  finalExam: {
+    type: finalExamSchema,
+    default: null
   },
   testUnlockThreshold: { type: Number, default: 80 },
   enrolledUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

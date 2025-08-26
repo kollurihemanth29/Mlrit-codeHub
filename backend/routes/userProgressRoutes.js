@@ -73,6 +73,18 @@ router.post("/lesson",
         });
       }
 
+      // Check if this lesson is already marked as completed
+      const existingTopic = progress.topicsProgress.find(tp => tp.topicId.toString() === topicId);
+      const existingLesson = existingTopic?.lessons?.find(lp => lp.lessonId.toString() === lessonId);
+      
+      if (existingLesson?.completed) {
+        return res.status(200).json({ 
+          message: "Lesson already completed",
+          alreadyCompleted: true,
+          progress: progress 
+        });
+      }
+
       await progress.updateLessonProgress(topicId, lessonId, {
         completed: completed || false,
         timeSpent: timeSpent || 0,
@@ -82,6 +94,7 @@ router.post("/lesson",
 
       res.json({ 
         message: "Lesson progress updated successfully", 
+        alreadyCompleted: false,
         progress: progress 
       });
     } catch (err) {
@@ -99,9 +112,7 @@ router.post("/module-test",
     body("userId").notEmpty().withMessage("userId is required"),
     body("courseId").notEmpty().withMessage("courseId is required"),
     body("topicId").notEmpty().withMessage("topicId is required"),
-    body("score").isNumeric().withMessage("score must be a number"),
-    body("totalMarks").isNumeric().withMessage("totalMarks must be a number"),
-    body("answers").optional().isArray()
+    body("answers").isArray().withMessage("answers must be an array")
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -109,9 +120,73 @@ router.post("/module-test",
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userId, courseId, topicId, score, totalMarks, answers, topicTitle } = req.body;
+    const { userId, courseId, topicId, answers, codingAnswers, topicTitle } = req.body;
 
     try {
+      // Get course data to access correct answers
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      const topic = course.topics.id(topicId);
+      if (!topic) {
+        return res.status(404).json({ message: "Topic not found" });
+      }
+
+      if (!topic.moduleTest) {
+        return res.status(404).json({ message: "No test available for this topic" });
+      }
+
+      // Calculate score by comparing answers
+      let correctAnswers = 0;
+      let wrongAnswers = 0;
+      let unattempted = 0;
+      let mcqCorrect = 0;
+      let codingCorrect = 0;
+      
+      const mcqs = topic.moduleTest.mcqs || [];
+      const codeChallenges = topic.moduleTest.codeChallenges || [];
+      const totalQuestions = mcqs.length + codeChallenges.length;
+      
+      // Check MCQ answers
+      mcqs.forEach((mcq, index) => {
+        if (answers[index] !== undefined) {
+          if (answers[index] === mcq.correct) {
+            correctAnswers++;
+            mcqCorrect++;
+          } else {
+            wrongAnswers++;
+          }
+        } else {
+          unattempted++;
+        }
+      });
+      
+      // Check coding answers (simplified - in real implementation, would execute and test)
+      if (codingAnswers) {
+        Object.keys(codingAnswers).forEach((questionIndex) => {
+          const codingIndex = parseInt(questionIndex) - mcqs.length;
+          if (codingIndex >= 0 && codingIndex < codeChallenges.length) {
+            // For now, just check if code exists (in real implementation, would test against expected output)
+            if (codingAnswers[questionIndex] && codingAnswers[questionIndex].code && codingAnswers[questionIndex].code.trim()) {
+              correctAnswers++;
+              codingCorrect++;
+            } else {
+              wrongAnswers++;
+            }
+          }
+        });
+      }
+      
+      // Count remaining unattempted coding questions
+      const attemptedCoding = codingAnswers ? Object.keys(codingAnswers).length : 0;
+      unattempted += Math.max(0, codeChallenges.length - attemptedCoding);
+
+      const totalMarks = topic.moduleTest.totalMarks || 100;
+      const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * totalMarks) : 0;
+      const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
+
       let progress = await UserProgress.findOne({ userId, courseId });
 
       if (!progress) {
@@ -127,7 +202,7 @@ router.post("/module-test",
         score,
         totalMarks,
         answers: answers || [],
-        topicTitle: topicTitle || 'Unknown Topic'
+        topicTitle: topicTitle || topic.title || 'Unknown Topic'
       });
 
       res.json({ 
@@ -136,7 +211,13 @@ router.post("/module-test",
         testResult: {
           score,
           totalMarks,
-          percentage: totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0
+          percentage,
+          correctAnswers,
+          wrongAnswers,
+          unattempted,
+          mcqCorrect,
+          codingCorrect,
+          totalQuestions
         }
       });
     } catch (err) {

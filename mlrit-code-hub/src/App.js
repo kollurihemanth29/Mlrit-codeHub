@@ -35,15 +35,17 @@ import Contests from "./pages/ContestList";
 import ContestDetail from "./pages/ContestDetail";
 import SolveContest from "./pages/SolveContestProblem";
 import SolveProblemSetProblem from "./pages/SolveProblemSetProblem";
-import CourseDetail from "./pages/CourseDetail";
+import ModernCourseDetail from "./pages/ModernCourseDetail";
 import ModuleDetail from "./pages/ModuleDetail";
 import ModuleDisplayNew from './pages/ModuleDisplayNew';
 import TopicView from "./pages/TopicView";
 import Courses from "./pages/Courses";
 import CourseCatalog from "./pages/CourseCatalog";
-import SecureTest from "./pages/SecureTest";
 import Dashboard from "./pages/Dashboard";
 import LessonPage from "./pages/LessonPage";
+import ModuleTestPage from "./pages/ModuleTestPage";
+import FinalExamPage from "./pages/FinalExamPage";
+import FinalExamResults from "./pages/FinalExamResults";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -79,10 +81,13 @@ function App() {
 
   function AppContent() {
     const path = usePath();
-    // Hide Navbar on SecureTest and Lesson pages for immersive experience
+    // Hide Navbar on SecureTest, ModuleTest, FinalExam and Lesson pages for immersive experience
     const isSecureTest = /^\/courses\/[^/]+\/test$/.test(path);
+    const isModuleTest = /^\/courses\/[^/]+\/topic\/[^/]+\/(test|secure-test)$/.test(path);
     const isLessonPage = /^\/courses\/[^/]+\/topic\/[^/]+\/lesson\/[^/]+$/.test(path);
-    const hideNavbar = isSecureTest || isLessonPage;
+    const isFinalExam = /^\/courses\/[^/]+\/final-exam$/.test(path);
+    const isFinalExamResults = /^\/courses\/[^/]+\/final-exam\/results$/.test(path);
+    const hideNavbar = isSecureTest || isModuleTest || isLessonPage || isFinalExam;
     return (
       <>
         {!hideNavbar && <Navbar />}
@@ -121,12 +126,15 @@ function App() {
           <Route path="/solve/:problemId" element={<ProtectedRoute allowedRole="student"><SolveProblemSetProblem /></ProtectedRoute>} />
 
           {/* Course Routes */}
-          <Route path="/courses/:id" element={<ProtectedRoute allowedRole={["student", "admin"]}><CourseDetail /></ProtectedRoute>} />
+          <Route path="/courses/:courseId" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModernCourseDetail /></ProtectedRoute>} />
           <Route path="/courses/:courseId/topic/:topicId/lesson/:lessonId" element={<ProtectedRoute allowedRole={["student", "admin"]}><LessonPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/topic/:topicId/test" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleTestPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/topic/:topicId/secure-test" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleTestPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/final-exam" element={<ProtectedRoute allowedRole={["student", "admin"]}><FinalExamPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/final-exam/results" element={<ProtectedRoute allowedRole={["student", "admin"]}><FinalExamResults /></ProtectedRoute>} />
           <Route path="/courses/:courseId/modules" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleDisplayNew /></ProtectedRoute>} />
           <Route path="/courses/:courseId/module/:moduleIndex" element={<ProtectedRoute allowedRole={["student", "admin"]}><ModuleDetail /></ProtectedRoute>} />
           <Route path="/courses/:courseId/module/:moduleIndex/topic/:topicIndex" element={<ProtectedRoute allowedRole={["student", "admin"]}><TopicView /></ProtectedRoute>} />
-          <Route path="/courses/:id/test" element={<ProtectedRoute allowedRole={["student", "admin"]}><SecureTest /></ProtectedRoute>} />
           <Route path="/courses" element={<ProtectedRoute allowedRole={["student", "admin"]}><CourseCatalog /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute allowedRole={["student", "admin"]}><Dashboard /></ProtectedRoute>} />
 

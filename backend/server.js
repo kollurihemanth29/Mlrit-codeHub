@@ -26,6 +26,7 @@ app.use("/api/submissions", require("./routes/submissionRoutes"));
 app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
 app.use("/api/roadmaps", require("./routes/roadmapRoutes"));   // Roadmaps
 app.use("/api/progress", require("./routes/userProgressRoutes")); // Progress
+app.use("/api", require("./routes/finalExamRoutes")); // Final Exams
 
 // Serve uploads statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

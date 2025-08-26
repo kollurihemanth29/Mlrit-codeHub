@@ -45,6 +45,14 @@ const UserProgressSchema = new mongoose.Schema({
   },
   topicsProgress: [topicProgressSchema],
   overallProgress: { type: Number, default: 0, min: 0, max: 100 },
+  
+  // Final Exam Progress
+  finalExamCompleted: { type: Boolean, default: false },
+  finalExamScore: { type: Number, default: 0 },
+  finalExamAttempts: { type: Number, default: 0 },
+  finalExamCompletedAt: { type: Date },
+  certificateEarned: { type: Boolean, default: false },
+  
   startedAt: { type: Date, default: Date.now },
   lastAccessedAt: { type: Date, default: Date.now },
   // Backward compatibility

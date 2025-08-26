@@ -2,8 +2,27 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Editor from "@monaco-editor/react";
-import {
-  ArrowLeft, ChevronRight, CheckCircle, Clock, Target, Play, Book, Code, HelpCircle, Award, Menu, Check, Settings, X, ChevronDown, ChevronUp, FileText
+import { 
+  Play, 
+  Pause, 
+  ChevronLeft, 
+  ChevronRight, 
+  CheckCircle, 
+  Clock, 
+  BookOpen, 
+  Code, 
+  HelpCircle, 
+  Eye,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Award,
+  FileText,
+  Target,
+  ArrowLeft,
+  Check,
+  Settings
 } from 'lucide-react';
 import { validateCourseStructure } from "../utils/courseUtils";
 import "./LessonPage.css";
@@ -26,10 +45,12 @@ const LessonPage = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [showConsole, setShowConsole] = useState(false);
   const [activeConsoleTab, setActiveConsoleTab] = useState('output');
-  const [activeTab, setActiveTab] = useState('statement');
-  const [leftWidth, setLeftWidth] = useState(50);
+  const [activeTab, setActiveTab] = useState('theory');
+  const [leftWidth, setLeftWidth] = useState(40);
   const [executionError, setExecutionError] = useState("");
   const [showExpectedOutput, setShowExpectedOutput] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   
   // Compiler integration - same as SolveProblemSetProblem
   const languageMap = {
@@ -93,6 +114,68 @@ int main() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const attemptedRecovery = useRef(false);
+
+  // Fetch lesson data and progress on component mount
+  useEffect(() => {
+    const fetchLessonAndProgress = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch lesson data
+        const [lessonResponse, progressResponse] = await Promise.all([
+          axios.get(
+            `http://localhost:5000/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          ),
+          axios.get(
+            `http://localhost:5000/api/progress?userId=${userId}&courseId=${courseId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        ]);
+        
+        const lessonData = lessonResponse.data;
+        setLesson(lessonData);
+        setCode(boilerplate[lessonData.language] || '');
+        setLanguage(lessonData.language || 'python');
+        setTotalSteps(lessonData.steps?.length || 1);
+        
+        // Check if lesson is already completed
+        if (progressResponse.data) {
+          const topicProgress = progressResponse.data.topicsProgress?.find(
+            tp => tp.topicId === topicId
+          );
+          const lessonProgress = topicProgress?.lessons?.find(
+            lp => lp.lessonId === lessonId
+          );
+          
+          if (lessonProgress?.completed) {
+            setIsCompleted(true);
+          }
+        }
+      } catch (err) {
+        // If progress check fails, continue without marking as completed
+        if (err.response?.status !== 404) {
+          console.error('Error checking lesson progress:', err);
+        }
+        
+        // Still try to load the lesson even if progress check fails
+        if (!lesson) {
+          const lessonResponse = await axios.get(
+            `http://localhost:5000/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setLesson(lessonResponse.data);
+          setCode(boilerplate[lessonResponse.data.language] || '');
+          setLanguage(lessonResponse.data.language || 'python');
+          setTotalSteps(lessonResponse.data.steps?.length || 1);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLessonAndProgress();
+  }, [courseId, topicId, lessonId, token, navigate]);
 
   // Fetch the full course data
   const fetchCourse = useCallback(async () => {
@@ -185,15 +268,38 @@ int main() {
   }, [courseId, topicId, lessonId, token, navigate]);
 
   const markComplete = async () => {
+    // If already completed, just navigate back
+    if (isCompleted) {
+      navigate(`/courses/${courseId}`);
+      return;
+    }
+    
     try {
-      await axios.post(
+      const response = await axios.post(
         `http://localhost:5000/api/progress/lesson`,
         { userId, courseId, topicId, lessonId, completed: true, timeSpent: 0, score: 0 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      // Update local state to reflect completion
+      if (!response.data.alreadyCompleted) {
+        setIsCompleted(true);
+        // Show a success message or toast here if needed
+        console.log('Lesson marked as completed');
+      } else {
+        console.log('Lesson was already completed');
+      }
+      
+      // Navigate back to course page in either case
       navigate(`/courses/${courseId}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to complete lesson");
+      // If it's a 200 status with alreadyCompleted: true, still navigate
+      if (err.response?.status === 200 && err.response?.data?.alreadyCompleted) {
+        setIsCompleted(true);
+        navigate(`/courses/${courseId}`);
+      } else {
+        setError(err.response?.data?.message || "Failed to complete lesson");
+      }
     }
   };
 
@@ -211,6 +317,16 @@ int main() {
     const currentStep = getCurrentStep();
     if (currentStep?.type === 'coding' && currentStep.content?.sampleInput) {
       setCustomInput(currentStep.content.sampleInput);
+    }
+  }, [currentStep, steps]);
+
+  // Handle tab switching based on step type
+  useEffect(() => {
+    const currentStep = getCurrentStep();
+    if (currentStep?.type === 'theory') {
+      setActiveTab('theory');
+    } else if (currentStep?.type === 'coding') {
+      setActiveTab('statement');
     }
   }, [currentStep, steps]);
 
@@ -334,7 +450,7 @@ int main() {
       if (lesson.content) {
         stepsList.push({
           type: 'theory',
-          title: 'Theory',
+          title: lesson.title || 'Lesson Content',
           icon: <FileText size={20} />,
           content: lesson.content
         });
@@ -358,7 +474,7 @@ int main() {
         lesson.codeChallenges.forEach((challenge, index) => {
           stepsList.push({
             type: 'coding',
-            title: `Coding Challenge ${index + 1}`,
+            title: `Statement`,
             icon: <Code size={20} />,
             content: challenge,
             challengeIndex: index
@@ -432,11 +548,12 @@ int main() {
     return true;
   };
 
+
   if (loading) return <div>Loading lesson...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="lesson-page">
+    <div className={`lesson-page dark-mode ${getCurrentStep()?.type === 'theory' ? 'theory-black' : ''}`}>
       {/* Dark Progress Navigation Bar - Exact Match */}
       <div className="dark-progress-navbar">
         <div className="navbar-content">
@@ -546,7 +663,7 @@ int main() {
             <div className="progress-bar-container">
               <div 
                 className="progress-bar-fill" 
-                style={{ width: `${Math.round(((currentStep + 1) / totalSteps) * 100)}%` }}
+                style={{ width: `${isCompleted ? 100 : Math.min(100, Math.round(((currentStep + 1) / totalSteps) * 100))}%` }}
               ></div>
             </div>
             <div className="progress-text">
@@ -612,13 +729,16 @@ int main() {
                           className="lesson-item test-item"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/courses/${courseId}/test`);
+                            navigate(`/courses/${courseId}/topic/${topic._id}/secure-test`);
                           }}
                         >
                           <div className="lesson-status">
-                            <div className="pending-dot"></div>
+                            <div className="test-dot"></div>
                           </div>
-                          <span className="lesson-title">Module Test</span>
+                          <span className="lesson-title">
+                            <Award size={16} />
+                            Knowledge Assessment
+                          </span>
                         </div>
                       )}
                     </div>
@@ -634,55 +754,129 @@ int main() {
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>}
 
       {/* Main Content */}
-      <div className="lesson-content">
+      <div className={`lesson-content ${getCurrentStep()?.type === 'mcq' ? 'mcq-no-scroll' : ''}`}>
         {getCurrentStep() && (
           <div className="step-container">
-            <div className="step-header">
-              <h2>{getCurrentStep().icon} {getCurrentStep().title}</h2>
-            </div>
+            {getCurrentStep().type !== 'coding' && (
+              <div className="step-header">
+                <h2>
+                  {getCurrentStep().icon}{' '}
+                  {getCurrentStep().type === 'mcq' ? 'Statement' : getCurrentStep().title}
+                </h2>
+              </div>
+            )}
             
             <div className="step-content">
               {/* Theory Step */}
               {getCurrentStep().type === 'theory' && (
-                <div className="theory-step">
-                  <div className="theory-content" dangerouslySetInnerHTML={{ __html: getCurrentStep().content }} />
+                <div className="theory-step-simple">
+                  <div className="theory-content-simple">
+                    <div className="theory-body-simple" dangerouslySetInnerHTML={{ __html: getCurrentStep().content }} />
+                    <div className="theory-navigation">
+                      <button 
+                        className="next-lesson-btn"
+                        onClick={nextStep}
+                        disabled={!canProceedToNext()}
+                      >
+                        Next <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* MCQ Step */}
+              {/* MCQ Step - Split Layout with Submit & Feedback */}
               {getCurrentStep().type === 'mcq' && (
-                <div className="mcq-step">
-                  <div className="mcq-question">
-                    <h3>{getCurrentStep().content.question}</h3>
-                    <div className="mcq-options">
-                      {getCurrentStep().content.options.map((opt, optionIndex) => (
-                        <button
-                          key={optionIndex}
-                          disabled={isAnswered}
-                          className={`mcq-option ${
-                            isAnswered
-                              ? optionIndex === getCurrentStep().content.correct 
-                                ? 'correct' 
-                                : optionIndex === selectedAnswer?.optionIndex 
-                                  ? 'incorrect' 
-                                  : ''
-                              : ''
-                          }`}
-                          onClick={() => handleMCQAnswer(getCurrentStep().mcqIndex, optionIndex)}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                    {showExplanation && (
-                      <div className={`mcq-feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
-                        <strong>{isCorrect ? 'Correct! 🎉' : 'Incorrect 😞'}</strong>
-                        <p>{getCurrentStep().content.explanation}</p>
-                        {!isCorrect && (
-                          <button onClick={resetMCQ} className="try-again-btn">Try Again</button>
-                        )}
+                <div className="mcq-step-solve-like">
+                  <div className="solve-container" ref={containerRef}>
+                    {/* Left: Statement only (no tabs) */}
+                    <div className="solve-left" style={{ width: `${leftWidth}%` }}>
+                      <div className="solve-content">
+                        <div className="mcq-statement-body">
+                          <h2 className="mcq-statement-title">{getCurrentStep().title || 'MCQ'}</h2>
+                          <div className="mcq-statement-question">
+                            <p>{getCurrentStep().content.question}</p>
+                          </div>
+                          {getCurrentStep().content?.hint && (
+                            <div className="mcq-statement-hint">
+                              <strong>Hint: </strong>{getCurrentStep().content.hint}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Resizer */}
+                    <div className="resizer" onMouseDown={startDrag} />
+
+                    {/* Right: Question/Options */}
+                    <div className="solve-right" style={{ width: `${100 - leftWidth}%` }}>
+                      <div className="mcq-question-box">
+                        <h3 className="mcq-question-title">{getCurrentStep().content.question}</h3>
+                        {getCurrentStep().content?.hint && (
+                          <div className="mcq-question-hint">{getCurrentStep().content.hint}</div>
+                        )}
+
+                        <div className="mcq-options">
+                          {getCurrentStep().content.options.map((opt, optionIndex) => {
+                            const isSelected = selectedAnswer?.optionIndex === optionIndex;
+                            const isCorrectOption = isAnswered && optionIndex === getCurrentStep().content.correct;
+                            const isIncorrectSelected = isAnswered && isSelected && !isCorrect;
+                            return (
+                              <button
+                                key={optionIndex}
+                                className={`mcq-option-tile ${
+                                  isCorrectOption ? 'correct' : isIncorrectSelected ? 'incorrect' : isSelected ? 'selected' : ''
+                                }`}
+                                onClick={() => setSelectedAnswer({ mcqIndex: getCurrentStep().mcqIndex, optionIndex })}
+                                disabled={isAnswered}
+                              >
+                                <span className="radio"></span>
+                                <span className="label">{opt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Explanation - show below options when correct */}
+                        {showExplanation && (
+                          <div className="mcq-explanation">
+                            <div className="mcq-expl-sidebar" />
+                            <div className="mcq-expl-content">
+                              <h4>Explanation</h4>
+                              <p>
+                                {getCurrentStep().content?.explanation || 'Great job! Your answer is correct. Here is a brief explanation for why this option is right.'}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="mcq-actions">
+                          <button
+                            className="mcq-submit-btn"
+                            onClick={() => {
+                              if (selectedAnswer == null) return;
+                              const correct = getCurrentStep().content.correct;
+                              const isAnsCorrect = selectedAnswer.optionIndex === correct;
+                              setIsAnswered(true);
+                              setIsCorrect(isAnsCorrect);
+                              setShowExplanation(!!isAnsCorrect);
+                            }}
+                            disabled={isAnswered || selectedAnswer == null}
+                          >
+                            Submit
+                          </button>
+                          <button 
+                            onClick={nextStep}
+                            disabled={!canProceedToNext()}
+                            className="mcq-next-btn"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -705,18 +899,6 @@ int main() {
                           onClick={() => setActiveTab("submissions")}
                         >
                           Submissions
-                        </button>
-                        <button
-                          className={activeTab === "solution" ? "active-tab" : ""}
-                          onClick={() => setActiveTab("solution")}
-                        >
-                          Solution
-                        </button>
-                        <button
-                          className={activeTab === "aihelp" ? "active-tab" : ""}
-                          onClick={() => setActiveTab("aihelp")}
-                        >
-                          AI Help
                         </button>
                       </div>
 
@@ -754,17 +936,7 @@ int main() {
                               <p className="submission-hint">Submit your solution to see it here.</p>
                             </div>
                           </div>
-                        ) : activeTab === "solution" ? (
-                          <div className="solution-section">
-                            <h2>Solution</h2>
-                            <p>Complete the challenge to unlock the solution.</p>
-                          </div>
-                        ) : (
-                          <div className="aihelp-section">
-                            <h2>AI Help</h2>
-                            <p>Need help? Ask AI for hints and guidance.</p>
-                          </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 

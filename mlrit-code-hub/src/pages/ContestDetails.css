@@ -1,29 +1,20 @@
 .contest-details {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 30px;
-    background: #1e293b;
-    color: white;
-    border-radius: 8px;
-  }
-  
-  .contest-details h2 {
-    color: #ffa116;
-    margin-bottom: 10px;
-  }
-  
-  .contest-details ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .contest-details li {
-    margin-bottom: 12px;
-  }
-  
-  .contest-details a {
-    color: #60a5fa;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.contest-details h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.contest-info {
+  margin-top: 15px;
+}
+
+.contest-info div {
+  margin: 5px 0;
+  color: #666;
+}

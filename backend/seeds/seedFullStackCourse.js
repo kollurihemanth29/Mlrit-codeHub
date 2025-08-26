@@ -32,6 +32,89 @@ const fullStackCourseData = {
       title: "HTML & CSS Basics",
       description: "Learn the building blocks of web pages.",
       order: 1,
+      moduleTest: {
+        totalMarks: 100,
+        timeLimit: 3600, // 60 minutes
+        mcqs: [
+          {
+            question: "What does HTML stand for?",
+            options: [
+              "Hyper Text Markup Language",
+              "High Tech Modern Language", 
+              "Home Tool Markup Language",
+              "Hyperlink and Text Markup Language"
+            ],
+            correct: 0,
+            marks: 10
+          },
+          {
+            question: "Which CSS property is used to change the text color?",
+            options: ["font-color", "text-color", "color", "foreground-color"],
+            correct: 2,
+            marks: 10
+          },
+          {
+            question: "What is the correct HTML element for the largest heading?",
+            options: ["<heading>", "<h6>", "<h1>", "<head>"],
+            correct: 2,
+            marks: 10
+          }
+        ],
+        codeChallenges: [
+          {
+            title: "Create a Simple HTML Page",
+            description: "Write HTML code to create a basic webpage with a heading, paragraph, and a list of 3 items.",
+            sampleInput: "No input required",
+            sampleOutput: `<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+    <p>This is a paragraph.</p>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+</body>
+</html>`,
+            constraints: "Must include DOCTYPE, html, head, title, body, h1, p, and ul elements",
+            initialCode: "<!-- Write your HTML code here -->",
+            language: "html",
+            marks: 35,
+            testCases: [
+              {
+                input: "",
+                expectedOutput: "HTML structure with required elements",
+                points: 35
+              }
+            ]
+          },
+          {
+            title: "CSS Styling Challenge",
+            description: "Write CSS to style a div element with blue background, white text, and 20px padding.",
+            sampleInput: "No input required",
+            sampleOutput: `div {
+    background-color: blue;
+    color: white;
+    padding: 20px;
+}`,
+            constraints: "Must use background-color, color, and padding properties",
+            initialCode: "/* Write your CSS code here */",
+            language: "css",
+            marks: 35,
+            testCases: [
+              {
+                input: "",
+                expectedOutput: "CSS with background-color: blue, color: white, padding: 20px",
+                points: 35
+              }
+            ]
+          }
+        ]
+      },
       lessons: [
         {
           title: "Introduction to HTML",
@@ -246,6 +329,81 @@ const fullStackCourseData = {
       title: "JavaScript Essentials",
       description: "Learn JavaScript fundamentals for web interactivity.",
       order: 2,
+      moduleTest: {
+        totalMarks: 100,
+        timeLimit: 3600, // 60 minutes
+        mcqs: [
+          {
+            question: "Which of the following is the correct way to declare a variable in JavaScript?",
+            options: ["variable x = 5;", "let x = 5;", "declare x = 5;", "x := 5;"],
+            correct: 1,
+            marks: 10
+          },
+          {
+            question: "What is the output of: console.log(typeof null)?",
+            options: ["null", "undefined", "object", "string"],
+            correct: 2,
+            marks: 10
+          },
+          {
+            question: "Which method is used to add an element to the end of an array?",
+            options: ["append()", "push()", "add()", "insert()"],
+            correct: 1,
+            marks: 10
+          }
+        ],
+        codeChallenges: [
+          {
+            title: "Sum of Two Numbers",
+            description: "Write a function that takes two numbers as parameters and returns their sum.",
+            sampleInput: "addNumbers(5, 3)",
+            sampleOutput: "8",
+            constraints: "Function must be named 'addNumbers' and take exactly 2 parameters",
+            initialCode: "function addNumbers(a, b) {\n    // Write your code here\n}",
+            language: "javascript",
+            marks: 35,
+            testCases: [
+              {
+                input: "addNumbers(5, 3)",
+                expectedOutput: "8",
+                points: 15
+              },
+              {
+                input: "addNumbers(-2, 7)",
+                expectedOutput: "5",
+                points: 10
+              },
+              {
+                input: "addNumbers(0, 0)",
+                expectedOutput: "0",
+                points: 10
+              }
+            ]
+          },
+          {
+            title: "Array Filter Challenge",
+            description: "Write a function that filters an array to return only even numbers.",
+            sampleInput: "filterEven([1, 2, 3, 4, 5, 6])",
+            sampleOutput: "[2, 4, 6]",
+            constraints: "Function must be named 'filterEven' and return an array",
+            initialCode: "function filterEven(numbers) {\n    // Write your code here\n}",
+            language: "javascript",
+            marks: 35,
+            testCases: [
+              {
+                input: "filterEven([1, 2, 3, 4, 5, 6])",
+                expectedOutput: "[2, 4, 6]",
+                points: 20
+              },
+              {
+                input: "filterEven([1, 3, 5])",
+                expectedOutput: "[]",
+                points: 15
+              }
+            ]
+          }
+        ]
+      },
       lessons: [
         {
           title: "Variables and Data Types",
@@ -479,7 +637,178 @@ server.listen(3000, () => {
         }
       ]
     }
-  ]
+  ],
+  finalExam: {
+    title: "Full Stack Web Development - Final Assessment",
+    description: "Comprehensive final exam covering HTML, CSS, JavaScript, Node.js, and full-stack development concepts. This secure assessment tests your complete understanding of web development fundamentals.",
+    mcqs: [
+      {
+        question: "What is the correct HTML5 doctype declaration?",
+        options: ["<!DOCTYPE html>", "<!DOCTYPE HTML5>", "<html5>", "<!HTML5>"],
+        correct: 0,
+        explanation: "<!DOCTYPE html> is the correct and simplified doctype for HTML5 documents."
+      },
+      {
+        question: "Which CSS property is used to make text bold?",
+        options: ["font-style", "text-weight", "font-weight", "bold"],
+        correct: 2,
+        explanation: "font-weight property controls the boldness of text, with values like bold, normal, or numeric values."
+      },
+      {
+        question: "What does 'let' keyword do in JavaScript?",
+        options: ["Declares a constant", "Declares a block-scoped variable", "Declares a global variable", "Declares a function"],
+        correct: 1,
+        explanation: "'let' declares a block-scoped variable that can be reassigned, introduced in ES6."
+      },
+      {
+        question: "Which method adds an element to the end of an array in JavaScript?",
+        options: ["append()", "add()", "push()", "insert()"],
+        correct: 2,
+        explanation: "push() method adds one or more elements to the end of an array and returns the new length."
+      },
+      {
+        question: "What is the purpose of the 'async' keyword in JavaScript?",
+        options: ["Makes function synchronous", "Declares an asynchronous function", "Handles errors", "Creates a promise"],
+        correct: 1,
+        explanation: "'async' keyword declares an asynchronous function that returns a Promise."
+      },
+      {
+        question: "Which Node.js module is used for file system operations?",
+        options: ["http", "fs", "path", "url"],
+        correct: 1,
+        explanation: "The 'fs' (file system) module provides APIs for interacting with the file system."
+      },
+      {
+        question: "What does npm stand for?",
+        options: ["Node Package Manager", "New Programming Method", "Network Protocol Manager", "Node Program Manager"],
+        correct: 0,
+        explanation: "npm stands for Node Package Manager, the default package manager for Node.js."
+      },
+      {
+        question: "Which HTTP status code indicates a successful request?",
+        options: ["404", "500", "200", "301"],
+        correct: 2,
+        explanation: "HTTP status code 200 indicates that the request was successful."
+      },
+      {
+        question: "What is the difference between '==' and '===' in JavaScript?",
+        options: ["No difference", "=== checks type and value, == only value", "== is faster", "=== is deprecated"],
+        correct: 1,
+        explanation: "=== (strict equality) checks both type and value, while == (loose equality) performs type coercion."
+      },
+      {
+        question: "Which CSS selector has the highest specificity?",
+        options: ["Element selector", "Class selector", "ID selector", "Universal selector"],
+        correct: 2,
+        explanation: "ID selectors have higher specificity than class selectors, which have higher specificity than element selectors."
+      },
+      {
+        question: "What is the purpose of Express.js middleware?",
+        options: ["Database connection", "Request/response processing", "File compression", "User authentication only"],
+        correct: 1,
+        explanation: "Middleware functions execute during the request-response cycle and can modify req/res objects or end the cycle."
+      },
+      {
+        question: "Which method is used to parse JSON in JavaScript?",
+        options: ["JSON.parse()", "JSON.stringify()", "parseJSON()", "toJSON()"],
+        correct: 0,
+        explanation: "JSON.parse() converts a JSON string into a JavaScript object."
+      }
+    ],
+    codeChallenges: [
+      {
+        title: "Full Stack Todo API",
+        description: "Create a complete Express.js API endpoint for managing todos. Implement GET /api/todos to return all todos, and POST /api/todos to create a new todo. Include proper error handling and JSON responses.",
+        sampleInput: "GET /api/todos\nPOST /api/todos with {title: 'Learn React', completed: false}",
+        sampleOutput: "GET: [{id: 1, title: 'Learn React', completed: false}]\nPOST: {id: 2, title: 'Learn React', completed: false, created: '2024-01-01'}",
+        constraints: "Use Express.js, implement both GET and POST routes, include error handling, return proper JSON responses",
+        initialCode: "const express = require('express');\nconst app = express();\n\n// Middleware for parsing JSON\napp.use(express.json());\n\n// In-memory storage (for demo purposes)\nlet todos = [\n  { id: 1, title: 'Learn HTML', completed: true, created: new Date().toISOString() }\n];\nlet nextId = 2;\n\n// Implement your routes here\n// GET /api/todos - return all todos\n// POST /api/todos - create new todo\n\napp.listen(3000, () => {\n  console.log('Server running on port 3000');\n});",
+        language: "javascript",
+        testCases: [
+          {
+            input: "GET /api/todos",
+            expectedOutput: "Array of todos with proper structure",
+            isHidden: false
+          },
+          {
+            input: "POST /api/todos {title: 'New Task'}",
+            expectedOutput: "Created todo with generated ID and timestamp",
+            isHidden: false
+          },
+          {
+            input: "POST /api/todos {}",
+            expectedOutput: "Error response for missing title",
+            isHidden: true
+          }
+        ]
+      },
+      {
+        title: "DOM Manipulation Challenge",
+        description: "Create a JavaScript function that dynamically generates an HTML todo list. The function should take an array of todo objects and create a complete HTML structure with proper styling classes and event handlers.",
+        sampleInput: "[{id: 1, title: 'Learn JS', completed: false}, {id: 2, title: 'Build App', completed: true}]",
+        sampleOutput: "Complete HTML structure with ul, li elements, proper classes, and click handlers",
+        constraints: "Use vanilla JavaScript, create proper HTML structure, add event listeners, handle completed state",
+        initialCode: "// Function to render todo list\nfunction renderTodoList(todos) {\n  // Create the main container\n  const container = document.createElement('div');\n  container.className = 'todo-container';\n  \n  // Create the list\n  const list = document.createElement('ul');\n  list.className = 'todo-list';\n  \n  // Your code here: \n  // 1. Loop through todos array\n  // 2. Create li elements for each todo\n  // 3. Add proper classes based on completed state\n  // 4. Add click event listeners\n  // 5. Append to list\n  \n  container.appendChild(list);\n  return container;\n}\n\n// Function to toggle todo completion\nfunction toggleTodo(todoId) {\n  // Your code here: implement toggle functionality\n}\n\n// Example usage:\n// const todos = [{id: 1, title: 'Learn JS', completed: false}];\n// const todoList = renderTodoList(todos);\n// document.body.appendChild(todoList);",
+        language: "javascript",
+        testCases: [
+          {
+            input: "[{id: 1, title: 'Test', completed: false}]",
+            expectedOutput: "HTML structure with ul and li elements",
+            isHidden: false
+          },
+          {
+            input: "[{id: 1, title: 'Done', completed: true}]",
+            expectedOutput: "Li element should have completed class",
+            isHidden: false
+          },
+          {
+            input: "[]",
+            expectedOutput: "Empty list should render without errors",
+            isHidden: true
+          }
+        ]
+      },
+      {
+        title: "Async Data Processing",
+        description: "Implement an async function that fetches user data from multiple APIs, processes the data, and returns a combined result. Handle errors gracefully and implement proper async/await patterns.",
+        sampleInput: "processUserData([1, 2, 3])",
+        sampleOutput: "[{id: 1, name: 'John', posts: 5, processed: true}, ...]",
+        constraints: "Use async/await, handle errors with try-catch, process data from multiple sources, return combined results",
+        initialCode: "// Simulate API calls (don't modify these)\nfunction fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id > 0) {\n        resolve({ id, name: \`User\${id}\`, email: \`user\${id}@example.com\` });\n      } else {\n        reject(new Error('Invalid user ID'));\n      }\n    }, Math.random() * 100);\n  });\n}\n\nfunction fetchUserPosts(userId) {\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve({ userId, posts: Math.floor(Math.random() * 10) + 1 });\n    }, Math.random() * 100);\n  });\n}\n\n// Your implementation here:\nasync function processUserData(userIds) {\n  // Your code here:\n  // 1. Fetch user data for each ID\n  // 2. Fetch posts count for each user\n  // 3. Combine the data\n  // 4. Handle errors gracefully\n  // 5. Return processed results\n  \n  try {\n    // Implement your solution here\n    \n  } catch (error) {\n    console.error('Error processing user data:', error);\n    return [];\n  }\n}\n\n// Example usage:\n// processUserData([1, 2, 3]).then(result => console.log(result));",
+        language: "javascript",
+        testCases: [
+          {
+            input: "processUserData([1, 2])",
+            expectedOutput: "Array of processed user objects with combined data",
+            isHidden: false
+          },
+          {
+            input: "processUserData([0, -1])",
+            expectedOutput: "Should handle errors and return appropriate result",
+            isHidden: true
+          },
+          {
+            input: "processUserData([])",
+            expectedOutput: "Empty array should return empty result",
+            isHidden: false
+          }
+        ]
+      }
+    ],
+    totalMarks: 1000,
+    duration: 120, // 2 hours
+    passingScore: 70,
+    isSecure: true,
+    securitySettings: {
+      preventCopyPaste: true,
+      preventTabSwitch: true,
+      preventRightClick: true,
+      fullScreenRequired: true,
+      webcamMonitoring: false,
+      timeLimit: 120
+    },
+    isActive: true
+  }
 };
 
 // Function to seed the Full Stack Web Development course
@@ -505,6 +834,13 @@ const seedFullStackCourse = async () => {
       console.log(`Course ID: ${updatedCourse._id}`);
       console.log(`Topics: ${updatedCourse.topics.length}`);
       console.log(`Total Lessons: ${updatedCourse.topics.reduce((acc, topic) => acc + topic.lessons.length, 0)}`);
+      console.log(`Final Exam: ${updatedCourse.finalExam ? '✅ Configured' : '❌ Missing'}`);
+      if (updatedCourse.finalExam) {
+        console.log(`  - MCQs: ${updatedCourse.finalExam.mcqs?.length || 0}`);
+        console.log(`  - Coding Challenges: ${updatedCourse.finalExam.codeChallenges?.length || 0}`);
+        console.log(`  - Duration: ${updatedCourse.finalExam.duration} minutes`);
+        console.log(`  - Security: ${updatedCourse.finalExam.isSecure ? 'Enabled' : 'Disabled'}`);
+      }
       
     } else {
       // Create new course
@@ -515,6 +851,13 @@ const seedFullStackCourse = async () => {
       console.log(`Course ID: ${savedCourse._id}`);
       console.log(`Topics: ${savedCourse.topics.length}`);
       console.log(`Total Lessons: ${savedCourse.topics.reduce((acc, topic) => acc + topic.lessons.length, 0)}`);
+      console.log(`Final Exam: ${savedCourse.finalExam ? '✅ Configured' : '❌ Missing'}`);
+      if (savedCourse.finalExam) {
+        console.log(`  - MCQs: ${savedCourse.finalExam.mcqs?.length || 0}`);
+        console.log(`  - Coding Challenges: ${savedCourse.finalExam.codeChallenges?.length || 0}`);
+        console.log(`  - Duration: ${savedCourse.finalExam.duration} minutes`);
+        console.log(`  - Security: ${savedCourse.finalExam.isSecure ? 'Enabled' : 'Disabled'}`);
+      }
     }
 
     // Verify the course structure

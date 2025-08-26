@@ -47,7 +47,7 @@ const ModuleDisplayNew = () => {
         // Fetch user progress
         if (userId) {
           const progressResponse = await axios.get(
-            `http://localhost:5000/api/courses/${courseId}/progress?userId=${userId}`,
+            `http://localhost:5000/api/progress?userId=${userId}&courseId=${courseId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
           setProgress(progressResponse.data || {});
@@ -66,24 +66,24 @@ const ModuleDisplayNew = () => {
     }
   }, [courseId, token, userId]);
 
-  // Helper functions for module progress and status
-  const getModuleProgress = (moduleIndex) => {
-    if (!progress?.modulesProgress) return { completed: 0, total: 0, percentage: 0 };
+  // Helper functions for topic progress and status
+  const getTopicProgress = (topicIndex) => {
+    if (!progress?.topicsProgress) return { completed: 0, total: 0, percentage: 0 };
     
-    const moduleProgress = progress.modulesProgress.find(m => m.moduleIndex === moduleIndex);
-    if (!moduleProgress) return { completed: 0, total: 0, percentage: 0 };
+    const topicProgress = progress.topicsProgress.find(tp => tp.topicId === course?.topics?.[topicIndex]?._id);
+    if (!topicProgress) return { completed: 0, total: 0, percentage: 0 };
     
-    const completed = moduleProgress.topicsProgress?.filter(t => t.completed).length || 0;
-    const total = course?.modules?.[moduleIndex]?.topics?.length || 0;
+    const completed = topicProgress.lessons?.filter(l => l.completed).length || 0;
+    const total = course?.topics?.[topicIndex]?.lessons?.length || 0;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
     
     return { completed, total, percentage };
   };
 
-  const getModuleStatus = (moduleIndex) => {
-    const moduleProgress = getModuleProgress(moduleIndex);
-    if (moduleProgress.percentage === 100) return 'completed';
-    if (moduleProgress.percentage > 0) return 'current';
+  const getTopicStatus = (topicIndex) => {
+    const topicProgress = getTopicProgress(topicIndex);
+    if (topicProgress.percentage === 100) return 'completed';
+    if (topicProgress.percentage > 0) return 'current';
     return 'locked';
   };
 
@@ -108,45 +108,49 @@ const ModuleDisplayNew = () => {
     }
   };
 
-  const handleModuleClick = (moduleIndex) => {
-    const status = getModuleStatus(moduleIndex);
+  const handleTopicClick = (topicIndex) => {
+    const status = getTopicStatus(topicIndex);
     if (status !== 'locked') {
-      // Find first incomplete topic or start from beginning
-      let targetTopicIndex = 0;
-      if (status === 'current') {
-        const moduleProgress = progress?.modulesProgress?.find(m => m.moduleIndex === moduleIndex);
-        if (moduleProgress) {
-          const firstIncomplete = course.modules[moduleIndex].topics.findIndex((topic, index) => {
-            const topicProgress = moduleProgress.topicsProgress?.find(t => t.topicIndex === index);
-            return !topicProgress?.completed;
-          });
-          targetTopicIndex = firstIncomplete !== -1 ? firstIncomplete : 0;
-        }
+      // Find first incomplete lesson or start from beginning
+      const topicProgress = progress?.topicsProgress?.find(tp => tp.topicId === course?.topics?.[topicIndex]?._id);
+      let targetLessonIndex = 0;
+      
+      if (topicProgress && course.topics[topicIndex]) {
+        const firstIncomplete = course.topics[topicIndex].lessons.findIndex((lesson, index) => {
+          const lessonProgress = topicProgress.lessons?.find(l => l.lessonId === lesson._id);
+          return !lessonProgress?.completed;
+        });
+        targetLessonIndex = firstIncomplete !== -1 ? firstIncomplete : 0;
       }
-      navigate(`/courses/${courseId}/module/${moduleIndex}/topic/${targetTopicIndex}`);
+      
+      const topic = course.topics[topicIndex];
+      const lesson = topic.lessons[targetLessonIndex];
+      if (topic && lesson) {
+        navigate(`/courses/${courseId}/topic/${topic._id}/lesson/${lesson._id}`);
+      }
     }
   };
 
   const getOverallStats = () => {
-    if (!course?.modules) return { completed: 0, total: 0, points: 0, progress: 0 };
+    if (!course?.topics) return { completed: 0, total: 0, points: 0, progress: 0 };
     
-    let totalModules = course.modules.length;
-    let completedModules = 0;
+    let totalTopics = course.topics.length;
+    let completedTopics = 0;
     let totalPoints = 0;
     
-    course.modules.forEach((module, index) => {
-      const moduleProgress = getModuleProgress(index);
-      if (moduleProgress.percentage === 100) {
-        completedModules++;
-        totalPoints += 100; // Base points per completed module
+    course.topics.forEach((topic, index) => {
+      const topicProgress = getTopicProgress(index);
+      if (topicProgress.percentage === 100) {
+        completedTopics++;
+        totalPoints += 100; // Base points per completed topic
       }
     });
     
-    const overallProgress = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+    const overallProgress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
     
     return {
-      completed: completedModules,
-      total: totalModules,
+      completed: completedTopics,
+      total: totalTopics,
       points: totalPoints,
       progress: overallProgress
     };
@@ -156,8 +160,26 @@ const ModuleDisplayNew = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading course...</div>
+      <div className="module-display-container">
+        <div className="module-header">
+          <div className="module-header-content">
+            <div className="loading-shimmer" style={{width: '300px', height: '40px', borderRadius: '8px'}}></div>
+            <div className="loading-shimmer" style={{width: '200px', height: '32px', borderRadius: '20px'}}></div>
+          </div>
+        </div>
+        <div className="main-content">
+          <div className="stats-grid">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="stat-card loading-shimmer" style={{height: '120px'}}></div>
+            ))}
+          </div>
+          <div className="modules-section">
+            <div className="loading-shimmer" style={{width: '200px', height: '30px', borderRadius: '8px', marginBottom: '2rem'}}></div>
+            {[1,2,3].map(i => (
+              <div key={i} className="module-card loading-shimmer" style={{height: '200px', marginBottom: '2rem'}}></div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -173,7 +195,7 @@ const ModuleDisplayNew = () => {
   return (
     <div className="module-display-container">
       {/* Header */}
-      <div className="module-header">
+      <div className="module-header fade-in">
         <div className="module-header-content">
           <div className="flex items-center space-x-4">
             <h1 className="module-title">{course?.title || 'Python Programming'}</h1>
@@ -198,9 +220,9 @@ const ModuleDisplayNew = () => {
       </div>
 
       {/* Main Content */}
-      <div className="main-content">
+      <div className="main-content slide-up">
         {/* Stats Section */}
-        <div className="stats-grid">
+        <div className="stats-grid fade-in">
           <div className="stat-card">
             <div className="stat-content">
               <div className="stat-info">
@@ -239,34 +261,35 @@ const ModuleDisplayNew = () => {
           </div>
         </div>
 
-        {/* Modules Section */}
+        {/* Topics Section */}
         <div className="modules-section">
-          <h2 className="modules-title">Course Modules</h2>
+          <h2 className="modules-title">Course Topics</h2>
           <div className="modules-grid">
-            {course?.modules
-              ?.filter(module => 
-                module.title.toLowerCase().includes(searchQuery.toLowerCase())
+            {course?.topics
+              ?.filter(topic => 
+                topic.title.toLowerCase().includes(searchQuery.toLowerCase())
               )
-              ?.map((module, moduleIndex) => {
-                const moduleProgress = getModuleProgress(moduleIndex);
-                const moduleStatus = getModuleStatus(moduleIndex);
+              ?.map((topic, topicIndex) => {
+                const topicProgress = getTopicProgress(topicIndex);
+                const topicStatus = getTopicStatus(topicIndex);
                 
                 return (
                   <div
-                    key={module._id || moduleIndex}
+                    key={topic._id || topicIndex}
                     className="module-card"
+                    onClick={() => handleTopicClick(topicIndex)}
                   >
-                    {/* Module Header */}
+                    {/* Topic Header */}
                     <div className="module-header-section">
                       <div className="module-number">
-                        {moduleIndex + 1}
+                        {topicIndex + 1}
                       </div>
                       <div className="module-info">
-                        <h3 className="module-name">{module.title}</h3>
+                        <h3 className="module-name">{topic.title}</h3>
                         <p className="module-description">
-                          {module.description || 'Learn how to make Python print whatever you want, and learn to use it as a basic calculator.'}
+                          {topic.description || 'Learn the fundamentals and practice with hands-on exercises.'}
                         </p>
-                        {moduleProgress.percentage === 100 && (
+                        {topicProgress.percentage === 100 && (
                           <div className="status-badge status-completed">
                             100% Solved
                           </div>
@@ -274,24 +297,30 @@ const ModuleDisplayNew = () => {
                       </div>
                     </div>
 
-                    {/* Topics List - Exact Reference Style */}
+                    {/* Lessons List */}
                     <div className="module-topics">
                       <div className="topics-list">
-                        {module.topics?.map((topic, topicIndex) => {
-                          const topicProgress = progress?.modulesProgress
-                            ?.find(m => m.moduleIndex === moduleIndex)
-                            ?.topicsProgress?.find(t => t.topicIndex === topicIndex);
-                          const isCompleted = topicProgress?.completed || false;
-                          const isCurrent = !isCompleted && topicIndex === 0; // First incomplete topic
+                        {topic.lessons?.map((lesson, lessonIndex) => {
+                          const topicProgressData = progress?.topicsProgress?.find(tp => tp.topicId === topic._id);
+                          const lessonProgress = topicProgressData?.lessons?.find(l => l.lessonId === lesson._id);
+                          const isCompleted = lessonProgress?.completed || false;
+                          
+                          // Find first incomplete lesson in this topic
+                          const firstIncompleteIndex = topic.lessons?.findIndex((_, idx) => {
+                            const lProg = topicProgressData?.lessons?.find(l => l.lessonId === topic.lessons[idx]._id);
+                            return !lProg?.completed;
+                          });
+                          
+                          const isCurrent = !isCompleted && lessonIndex === firstIncompleteIndex;
                           const isLocked = !isCompleted && !isCurrent;
                           
                           return (
                             <div 
-                              key={topic._id || topicIndex}
+                              key={lesson._id || lessonIndex}
                               className="topic-item"
                               onClick={() => {
                                 if (!isLocked) {
-                                  navigate(`/courses/${courseId}/module/${moduleIndex}/topic/${topicIndex}`);
+                                  navigate(`/courses/${courseId}/topic/${topic._id}/lesson/${lesson._id}`);
                                 }
                               }}
                             >
@@ -313,16 +342,11 @@ const ModuleDisplayNew = () => {
                                   isCompleted ? 'completed' : 
                                   isLocked ? 'locked' : ''
                                 }`}>
-                                  {topic.title}
+                                  {lesson.title}
                                 </h4>
                                 
-                                <div className={`topic-badge ${
-                                  topic.type === 'lesson' ? 'lesson' :
-                                  topic.type === 'test' ? 'test' :
-                                  topic.type === 'quiz' ? 'quiz' :
-                                  topic.type === 'coding' ? 'coding' : 'lesson'
-                                }`}>
-                                  {topic.type === 'test' ? 'Test' : 'Lesson'}
+                                <div className="topic-badge lesson">
+                                  Lesson
                                 </div>
                               </div>
                             </div>
@@ -331,18 +355,36 @@ const ModuleDisplayNew = () => {
                       </div>
                     </div>
 
-                    {/* Module Progress */}
-                    {moduleProgress.total > 0 && (
+                    {/* Topic Progress */}
+                    {topicProgress.total > 0 && (
                       <div className="module-progress">
                         <div className="progress-header">
                           <span className="progress-label">Progress</span>
-                          <span className="progress-percentage">{moduleProgress.percentage}%</span>
+                          <span className="progress-percentage">{topicProgress.percentage}%</span>
                         </div>
                         <div className="progress-bar">
                           <div 
                             className="progress-fill" 
-                            style={{ width: `${moduleProgress.percentage}%` }}
+                            style={{ width: `${topicProgress.percentage}%` }}
                           ></div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Module Test if available */}
+                    {topic.moduleTest && (
+                      <div 
+                        className="topic-item"
+                        onClick={() => navigate(`/courses/${courseId}/topic/${topic._id}/test`)}
+                      >
+                        <div className="topic-status-icon test">
+                          <Award className="w-4 h-4" />
+                        </div>
+                        <div className="topic-content">
+                          <h4 className="topic-title">Module Test: {topic.title}</h4>
+                          <div className="topic-badge test">
+                            Test
+                          </div>
                         </div>
                       </div>
                     )}
