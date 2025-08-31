@@ -66,10 +66,16 @@ router.get("/", authenticateToken, async (req, res) => {
 // Get course details
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
+    console.log(`Fetching course with ID: ${req.params.id}`);
     const course = await Course.findById(req.params.id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
+    if (!course) {
+      console.log(`Course not found: ${req.params.id}`);
+      return res.status(404).json({ message: "Course not found" });
+    }
+    console.log(`Course found: ${course.title}`);
     res.json(course);
   } catch (err) {
+    console.error(`Error fetching course ${req.params.id}:`, err);
     res.status(500).json({ message: err.message });
   }
 });

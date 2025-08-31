@@ -99,10 +99,12 @@ int main() {
     document.addEventListener('mousemove', doDrag);
     document.addEventListener('mouseup', stopDrag);
   };
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [mcqResult, setMcqResult] = useState(null); // 'correct', 'wrong', or null
   const [showExplanation, setShowExplanation] = useState(false);
+  const [stepResults, setStepResults] = useState({}); // Track results for each step
   
   // Step navigation state
   const [currentStep, setCurrentStep] = useState(0);
@@ -275,22 +277,65 @@ int main() {
     }
     
     try {
-      const response = await axios.post(
+      // Mark lesson as completed in progress system
+      const progressResponse = await axios.post(
         `http://localhost:5000/api/progress/lesson`,
         { userId, courseId, topicId, lessonId, completed: true, timeSpent: 0, score: 0 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
+      // Update leaderboard with lesson completion data
+      const lessonData = {
+        topicId,
+        lessonId,
+        mcqResults: Object.entries(stepResults || {}).filter(([key, result]) => {
+          const stepIndex = parseInt(key);
+          const step = steps[stepIndex];
+          return step?.type === 'mcq';
+        }).map(([key, result]) => ({
+          stepIndex: parseInt(key),
+          isCorrect: result === 'correct',
+          type: 'mcq'
+        })),
+        codingResults: Object.entries(stepResults || {}).filter(([key, result]) => {
+          const stepIndex = parseInt(key);
+          const step = steps[stepIndex];
+          return step?.type === 'coding';
+        }).map(([key, result]) => ({
+          stepIndex: parseInt(key),
+          verdict: result === 'correct' ? 'Accepted' : 'Wrong Answer',
+          type: 'coding'
+        })),
+        mcqQuestions: lesson?.mcqs || [],
+        codingQuestions: lesson?.codeChallenges || []
+      };
+      
+      try {
+        await axios.post(
+          `http://localhost:5000/api/course-leaderboard/${courseId}/update-score`,
+          {
+            userId,
+            assessmentType: 'lesson',
+            assessmentData: lessonData
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log('Leaderboard updated with lesson completion');
+      } catch (leaderboardError) {
+        console.warn('Failed to update leaderboard:', leaderboardError);
+        // Continue even if leaderboard update fails
+      }
+      
       // Update local state to reflect completion
-      if (!response.data.alreadyCompleted) {
+      if (!progressResponse.data.alreadyCompleted) {
         setIsCompleted(true);
-        // Show a success message or toast here if needed
         console.log('Lesson marked as completed');
       } else {
         console.log('Lesson was already completed');
       }
       
-      // Navigate back to course page in either case
+      // Trigger progress refresh and navigate back
+      localStorage.setItem('lessonCompleted', Date.now().toString());
       navigate(`/courses/${courseId}`);
     } catch (err) {
       // If it's a 200 status with alreadyCompleted: true, still navigate
@@ -330,44 +375,85 @@ int main() {
     }
   }, [currentStep, steps]);
 
-  const handleRun = async () => {
+  // Handle code execution with Judge0
+  const executeCode = async () => {
     if (!code.trim()) {
-      setOutput("Please enter some code before running.");
-      setShowConsole(true);
+      setOutput("Please write some code first.");
       return;
     }
+
     setIsRunning(true);
-    setOutput("Running...");
+    setOutput("");
     setVerdict("");
-    setShowConsole(true);
+    setExecutionError("");
 
     try {
-      const res = await axios.post(
-        "http://localhost:2358/submissions?base64_encoded=false&wait=true",
-        {
-          language_id: languageMap[language],
-          source_code: code,
-          stdin: customInput,
-        },
-        { headers: { "Content-Type": "application/json" } }
-      );
+      const response = await axios.post("http://localhost:2358/submissions", {
+        source_code: code,
+        language_id: languageMap[language],
+        stdin: customInput,
+      });
 
-      const { stdout, stderr, compile_output } = res.data;
-      const finalOutput = stdout || stderr || compile_output || "No output";
-      setOutput(finalOutput.trim());
+      const token = response.data.token;
+      
+      // Poll for result
+      let result;
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      do {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const resultResponse = await axios.get(`http://localhost:2358/submissions/${token}`);
+        result = resultResponse.data;
+        attempts++;
+      } while (result.status.id <= 2 && attempts < maxAttempts);
 
-      // Check against expected output if available
-      const currentStep = getCurrentStep();
-      if (currentStep?.type === 'coding' && currentStep.content?.sampleOutput) {
-        const expected = currentStep.content.sampleOutput.trim();
-        setVerdict(finalOutput.trim() === expected ? "✅ Correct Output" : "❌ Wrong Output");
+      if (result.stdout) {
+        setOutput(result.stdout);
+        setVerdict("Accepted");
+        // Store coding result for progress indicator
+        setStepResults(prev => ({
+          ...prev,
+          [currentStep]: 'correct'
+        }));
+      } else if (result.stderr) {
+        setOutput(result.stderr);
+        setVerdict("Runtime Error");
+        setExecutionError(result.stderr);
+        // Store coding result for progress indicator
+        setStepResults(prev => ({
+          ...prev,
+          [currentStep]: 'wrong'
+        }));
+      } else if (result.compile_output) {
+        setOutput(result.compile_output);
+        setVerdict("Compilation Error");
+        setExecutionError(result.compile_output);
+        // Store coding result for progress indicator
+        setStepResults(prev => ({
+          ...prev,
+          [currentStep]: 'wrong'
+        }));
       } else {
-        setVerdict("");
+        setOutput("No output");
+        setVerdict("No Output");
+        // Store coding result for progress indicator
+        setStepResults(prev => ({
+          ...prev,
+          [currentStep]: 'wrong'
+        }));
       }
-    } catch (err) {
-      console.error("Run Error:", err);
-      setOutput("Error running code");
+      
+    } catch (error) {
+      console.error("Execution error:", error);
+      setOutput("Error executing code. Make sure Judge0 server is running.");
+      setExecutionError("Connection error");
       setVerdict("");
+      // Store coding result for progress indicator
+      setStepResults(prev => ({
+        ...prev,
+        [currentStep]: 'wrong'
+      }));
     } finally {
       setIsRunning(false);
     }
@@ -428,17 +514,42 @@ int main() {
     const current = getCurrentStep()?.content;
     if (!current) return;
     
-    setSelectedAnswer({ mcqIndex, optionIndex });
+    setSelectedAnswer(optionIndex);
     setIsAnswered(true);
-    setIsCorrect(optionIndex === current.correct);
+    const correct = optionIndex === current.correct;
+    setIsCorrect(correct);
     setShowExplanation(true);
+    setMcqResult(correct ? 'correct' : 'wrong');
+    
+    // Store result for this step
+    setStepResults(prev => ({
+      ...prev,
+      [currentStep]: correct ? 'correct' : 'wrong'
+    }));
+  };
+
+  const handleAnswerSelect = (answer) => {
+    setSelectedAnswer(answer);
+    const correct = answer === getCurrentStep().content.correctAnswer;
+    setIsCorrect(correct);
+    setIsAnswered(true);
+    setMcqResult(correct ? 'correct' : 'wrong');
   };
 
   const resetMCQ = () => {
-    setSelectedAnswer(null);
+    setSelectedAnswer("");
     setIsAnswered(false);
     setIsCorrect(false);
     setShowExplanation(false);
+    // Don't reset mcqResult to preserve tick color
+  };
+
+  const allowRetryMCQ = () => {
+    setSelectedAnswer("");
+    setIsAnswered(false);
+    setIsCorrect(false);
+    setShowExplanation(false);
+    // Keep mcqResult to maintain tick color until new answer
   };
 
   // Calculate total steps based on lesson content
@@ -505,13 +616,14 @@ int main() {
   // Navigation functions
   const nextStep = () => {
     if (currentStep < totalSteps - 1) {
-      // Mark current step as completed
-      setStepProgress(prev => ({
-        ...prev,
-        [currentStep]: true
-      }));
+      // Mark current step as completed if it's theory
+      if (getCurrentStep()?.type === 'theory') {
+        setStepResults(prev => ({
+          ...prev,
+          [currentStep]: 'completed'
+        }));
+      }
       setCurrentStep(currentStep + 1);
-      // Reset MCQ state when moving to next step
       resetMCQ();
     }
   };
@@ -519,7 +631,6 @@ int main() {
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
-      // Reset MCQ state when moving to previous step
       resetMCQ();
     }
   };
@@ -529,14 +640,33 @@ int main() {
     resetMCQ();
   };
 
+  // Get status for completed steps with color coding
+  const getStepStatus = (stepIndex) => {
+    const step = steps[stepIndex];
+    const result = stepResults[stepIndex];
+    
+    if (step?.type === 'theory') {
+      return result === 'completed' ? 'completed-green' : 'completed';
+    } else if (step?.type === 'mcq') {
+      if (result === 'correct') return 'completed-green';
+      if (result === 'wrong') return 'completed-red';
+      return 'completed';
+    } else if (step?.type === 'coding') {
+      if (result === 'correct') return 'completed-green';
+      if (result === 'wrong') return 'completed-red';
+      return 'completed';
+    }
+    return 'completed';
+  };
+
   // Check if current step can proceed to next
   const canProceedToNext = () => {
     const step = getCurrentStep();
     if (!step) return false;
     
-    // For MCQ steps, user must answer correctly
+    // For MCQ steps, allow proceeding without answering (non-mandatory)
     if (step.type === 'mcq') {
-      return isAnswered && isCorrect;
+      return true; // MCQs are now non-mandatory
     }
     
     // For coding steps, user should have a successful submission (optional but encouraged)
@@ -573,18 +703,31 @@ int main() {
             >
               <Menu size={16} />
             </button>
-            <button 
-              className="nav-icon check-icon"
-              title="Mark Complete"
+            <div 
+              className={`nav-icon check-icon ${
+                getCurrentStep()?.type === 'theory' && stepResults[currentStep] === 'completed' ? 'completed-green' :
+                getCurrentStep()?.type === 'mcq' && stepResults[currentStep] === 'correct' ? 'completed-green' :
+                getCurrentStep()?.type === 'mcq' && stepResults[currentStep] === 'wrong' ? 'completed-red' :
+                getCurrentStep()?.type === 'coding' && stepResults[currentStep] === 'correct' ? 'completed-green' :
+                getCurrentStep()?.type === 'coding' && stepResults[currentStep] === 'wrong' ? 'completed-red' :
+                ''
+              }`}
+              title="Progress Status"
             >
-              <Check size={16} />
-            </button>
-            <button 
-              className="nav-icon settings-icon"
-              title="Settings"
-            >
-              <Settings size={16} />
-            </button>
+              {getCurrentStep()?.type === 'theory' && stepResults[currentStep] === 'completed' ? (
+                <Check size={16} style={{color: '#28a745'}} />
+              ) : getCurrentStep()?.type === 'mcq' && stepResults[currentStep] === 'correct' ? (
+                <Check size={16} style={{color: '#28a745'}} />
+              ) : getCurrentStep()?.type === 'mcq' && stepResults[currentStep] === 'wrong' ? (
+                <X size={16} style={{color: '#dc3545'}} />
+              ) : getCurrentStep()?.type === 'coding' && stepResults[currentStep] === 'correct' ? (
+                <Check size={16} style={{color: '#28a745'}} />
+              ) : getCurrentStep()?.type === 'coding' && stepResults[currentStep] === 'wrong' ? (
+                <X size={16} style={{color: '#dc3545'}} />
+              ) : (
+                <Check size={16} />
+              )}
+            </div>
           </div>
 
           {/* Right Side - Progress Navigation */}
@@ -602,11 +745,11 @@ int main() {
 
             {/* Progress Segments */}
             <div className="progress-segments">
-              {steps.map((step, index) => (
+              {steps?.map((step, index) => (
                 <div
                   key={index}
                   className={`progress-dot ${
-                    index < currentStep ? 'completed' : 
+                    index < currentStep ? getStepStatus(index) : 
                     index === currentStep ? 'active' : 'pending'
                   }`}
                   onClick={() => index <= currentStep && goToStep(index)}
@@ -818,17 +961,18 @@ int main() {
                         )}
 
                         <div className="mcq-options">
-                          {getCurrentStep().content.options.map((opt, optionIndex) => {
-                            const isSelected = selectedAnswer?.optionIndex === optionIndex;
+                          {getCurrentStep().content?.options?.map((opt, optionIndex) => {
+                            const isSelected = selectedAnswer === optionIndex;
                             const isCorrectOption = isAnswered && optionIndex === getCurrentStep().content.correct;
-                            const isIncorrectSelected = isAnswered && isSelected && !isCorrect;
+                            const isIncorrectSelected = isAnswered && isSelected && !isCorrectOption;
+                            
                             return (
                               <button
                                 key={optionIndex}
                                 className={`mcq-option-tile ${
                                   isCorrectOption ? 'correct' : isIncorrectSelected ? 'incorrect' : isSelected ? 'selected' : ''
                                 }`}
-                                onClick={() => setSelectedAnswer({ mcqIndex: getCurrentStep().mcqIndex, optionIndex })}
+                                onClick={() => handleMCQAnswer(0, optionIndex)}
                                 disabled={isAnswered}
                               >
                                 <span className="radio"></span>
@@ -838,42 +982,68 @@ int main() {
                           })}
                         </div>
 
-                        {/* Explanation - show below options when correct */}
+                        {/* Explanation - show after any answer submission */}
                         {showExplanation && (
                           <div className="mcq-explanation">
                             <div className="mcq-expl-sidebar" />
                             <div className="mcq-expl-content">
-                              <h4>Explanation</h4>
-                              <p>
-                                {getCurrentStep().content?.explanation || 'Great job! Your answer is correct. Here is a brief explanation for why this option is right.'}
-                              </p>
+                              <div className={`verdict-header ${isCorrect ? 'correct-verdict' : 'wrong-verdict'}`}>
+                                <h4>{isCorrect ? '✅ Correct!' : '❌ Incorrect'}</h4>
+                                <span className="verdict-status">{isCorrect ? 'Well done!' : 'Try again'}</span>
+                              </div>
+                              <div className="explanation-content">
+                                <h5>Reason:</h5>
+                                <p>
+                                  {isCorrect 
+                                    ? (getCurrentStep().content?.explanation || 'Great job! Your answer is correct. Here is a brief explanation for why this option is right.')
+                                    : (getCurrentStep().content?.wrongExplanation || 'That\'s not quite right. The correct answer provides a better solution.')
+                                  }
+                                </p>
+                              </div>
+                              {!isCorrect && (
+                                <button 
+                                  className="retry-mcq-btn"
+                                  onClick={allowRetryMCQ}
+                                >
+                                  Try Again
+                                </button>
+                              )}
                             </div>
                           </div>
                         )}
 
                         {/* Actions */}
                         <div className="mcq-actions">
-                          <button
-                            className="mcq-submit-btn"
-                            onClick={() => {
-                              if (selectedAnswer == null) return;
-                              const correct = getCurrentStep().content.correct;
-                              const isAnsCorrect = selectedAnswer.optionIndex === correct;
-                              setIsAnswered(true);
-                              setIsCorrect(isAnsCorrect);
-                              setShowExplanation(!!isAnsCorrect);
-                            }}
-                            disabled={isAnswered || selectedAnswer == null}
-                          >
-                            Submit
-                          </button>
-                          <button 
-                            onClick={nextStep}
-                            disabled={!canProceedToNext()}
-                            className="mcq-next-btn"
-                          >
-                            Next
-                          </button>
+                          {!isAnswered ? (
+                            <button
+                              className="mcq-submit-btn"
+                              onClick={() => {
+                                if (selectedAnswer == null) return;
+                                const correct = getCurrentStep().content.correct;
+                                const isAnsCorrect = selectedAnswer === correct;
+                                setIsAnswered(true);
+                                setIsCorrect(isAnsCorrect);
+                                setShowExplanation(true);
+                                setMcqResult(isAnsCorrect ? 'correct' : 'wrong');
+                                
+                                // Store result for this step
+                                setStepResults(prev => ({
+                                  ...prev,
+                                  [currentStep]: isAnsCorrect ? 'correct' : 'wrong'
+                                }));
+                              }}
+                              disabled={selectedAnswer == null}
+                            >
+                              Submit
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={nextStep}
+                              className="mcq-next-btn"
+                            >
+                              Next
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -962,7 +1132,7 @@ int main() {
                         <div className="toolbar-buttons">
                           <button 
                             className="run-button"
-                            onClick={handleRun} 
+                            onClick={executeCode} 
                             disabled={isRunning}
                           >
                             {isRunning ? 'Running...' : 'Run'}
@@ -1042,10 +1212,14 @@ int main() {
                           </div>
                           <div className="console-body">
                             {activeConsoleTab === 'output' ? (
-                              <>
-                                <pre className="console-output">{output}</pre>
-                                {verdict && <p className="verdict-msg">{verdict}</p>}
-                              </>
+                              <div className="output-content">
+                                <pre className="output-text">{output || "Click 'Run' to see output here"}</pre>
+                                {verdict && (
+                                  <div className={`verdict ${verdict.includes('✅') ? 'success' : 'error'}`}>
+                                    {verdict}
+                                  </div>
+                                )}
+                              </div>
                             ) : (
                               <textarea
                                 className="console-input"

@@ -19,7 +19,7 @@ const connectDB = async () => {
 const fullStackCourseData = {
   title: "Full Stack Web Development",
   description: "A beginner-to-advanced course covering front-end, back-end, and deployment.",
-  difficulty: "Medium",
+  difficulty: "medium",
   duration: "12 weeks",
   instructor: "Tech Academy",
   tags: ["web development", "javascript", "html", "css", "nodejs", "full stack"],

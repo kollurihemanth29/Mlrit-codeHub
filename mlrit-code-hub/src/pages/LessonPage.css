@@ -606,6 +606,15 @@ body {
   color: #ffffff;
 }
 
+/* Dynamic check icon colors */
+.nav-icon.check-icon.completed-green {
+  color: #28a745 !important;
+}
+
+.nav-icon.check-icon.completed-red {
+  color: #dc3545 !important;
+}
+
 .menu-icon.active {
   background: #4a5568;
   color: #ffffff;
@@ -656,30 +665,67 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 1rem;
+  padding: 0
 }
 
+/* Progress dots styling with color coding */
 .progress-dot {
-  width: 32px;
-  height: 8px;
-  border-radius: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
   position: relative;
 }
 
-.progress-dot.completed {
-  background: #4299e1;
+.progress-dot.pending {
+  background: #4a4a4a;
+  border-color: #666;
 }
 
 .progress-dot.active {
-  background: #4299e1;
-  box-shadow: 0 0 8px rgba(66, 153, 225, 0.6);
-  animation: active-pulse 2s infinite;
+  background: #007bff;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
-.progress-dot.pending {
-  background: #718096;
+.progress-dot.completed {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+/* Color-coded completed states */
+.progress-dot.completed-green {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+.progress-dot.completed-green::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.progress-dot.completed-red {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.progress-dot.completed-red::after {
+  content: "✗";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
 }
 
 .progress-dot:hover:not(.pending) {
@@ -1476,6 +1522,73 @@ body {
   border: 1px solid #4b5563;
   padding: 8px 14px;
   border-radius: 4px;
+}
+
+.retry-mcq-btn {
+  background: #ffc107;
+  color: #212529;
+  border: 1px solid #ffc107;
+  padding: 8px 14px;
+  border-radius: 4px;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-mcq-btn:hover {
+  background: #e0a800;
+  border-color: #e0a800;
+}
+
+/* MCQ Explanation Verdict Styling */
+.verdict-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.verdict-header.correct-verdict {
+  background: rgba(40, 167, 69, 0.1);
+  border-left-color: #28a745;
+  color: #28a745;
+}
+
+.verdict-header.wrong-verdict {
+  background: rgba(220, 53, 69, 0.1);
+  border-left-color: #dc3545;
+  color: #dc3545;
+}
+
+.verdict-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.verdict-status {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.explanation-content {
+  margin-top: 1rem;
+}
+
+.explanation-content h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.explanation-content p {
+  margin: 0;
+  line-height: 1.6;
+  color: #e2e8f0;
 }
 
 @media (max-width: 960px) {

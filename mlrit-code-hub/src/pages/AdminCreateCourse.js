@@ -67,6 +67,14 @@ const AdminCreateCourse = () => {
       title: "",
       description: "",
       difficulty: "Easy",
+      scoringConfig: {
+        lessonMcqMarks: 5,
+        lessonCodingMarks: 25,
+        moduleTestMcqMarks: 15,
+        moduleTestCodingMarks: 75,
+        finalExamMcqMarks: 20,
+        finalExamCodingMarks: 100
+      },
       topics: [
         {
           title: "",
@@ -224,6 +232,118 @@ const AdminCreateCourse = () => {
           </div>
         </div>
 
+        {/* Scoring Configuration Section */}
+        <div className="form-section">
+          <div className="section-header">
+            <h2>Scoring Configuration</h2>
+            <p className="section-description">Configure marks for different assessment types</p>
+          </div>
+          
+          <div className="scoring-grid">
+            <div className="scoring-category">
+              <h4>Lesson Assessments</h4>
+              <div className="form-group">
+                <label>MCQ Marks (per question)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.lessonMcqMarks", { 
+                    required: "Lesson MCQ marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="5"
+                />
+                {errors.scoringConfig?.lessonMcqMarks && (
+                  <span className="error">{errors.scoringConfig.lessonMcqMarks.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Coding Challenge Marks (per challenge)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.lessonCodingMarks", { 
+                    required: "Lesson coding marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="25"
+                />
+                {errors.scoringConfig?.lessonCodingMarks && (
+                  <span className="error">{errors.scoringConfig.lessonCodingMarks.message}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="scoring-category">
+              <h4>Module Test Assessments</h4>
+              <div className="form-group">
+                <label>MCQ Marks (per question)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.moduleTestMcqMarks", { 
+                    required: "Module test MCQ marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="15"
+                />
+                {errors.scoringConfig?.moduleTestMcqMarks && (
+                  <span className="error">{errors.scoringConfig.moduleTestMcqMarks.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Coding Challenge Marks (per challenge)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.moduleTestCodingMarks", { 
+                    required: "Module test coding marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="75"
+                />
+                {errors.scoringConfig?.moduleTestCodingMarks && (
+                  <span className="error">{errors.scoringConfig.moduleTestCodingMarks.message}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="scoring-category">
+              <h4>Final Exam Assessments</h4>
+              <div className="form-group">
+                <label>MCQ Marks (per question)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.finalExamMcqMarks", { 
+                    required: "Final exam MCQ marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="20"
+                />
+                {errors.scoringConfig?.finalExamMcqMarks && (
+                  <span className="error">{errors.scoringConfig.finalExamMcqMarks.message}</span>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Coding Challenge Marks (per challenge)</label>
+                <input
+                  type="number"
+                  min="1"
+                  {...register("scoringConfig.finalExamCodingMarks", { 
+                    required: "Final exam coding marks is required",
+                    min: { value: 1, message: "Must be at least 1" }
+                  })}
+                  placeholder="100"
+                />
+                {errors.scoringConfig?.finalExamCodingMarks && (
+                  <span className="error">{errors.scoringConfig.finalExamCodingMarks.message}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Topics Section */}
         <div className="form-section">
           <div className="section-header">
@@ -345,7 +465,7 @@ const AdminCreateCourse = () => {
                       <h6><Target size={16} /> MCQs (Exactly 2 Required)</h6>
                       {[0, 1].map((mcqIndex) => (
                         <div key={mcqIndex} className="mcq-card">
-                          <h7>MCQ {mcqIndex + 1}</h7>
+                          <h6>MCQ {mcqIndex + 1}</h6>
                           
                           <div className="form-group">
                             <label>Question *</label>
@@ -405,7 +525,7 @@ const AdminCreateCourse = () => {
                       <h6><Code size={16} /> Coding Challenges (Exactly 2 Required)</h6>
                       {[0, 1].map((codeIndex) => (
                         <div key={codeIndex} className="code-card">
-                          <h7>Coding Challenge {codeIndex + 1}</h7>
+                          <h6>Coding Challenge {codeIndex + 1}</h6>
                           
                           <div className="form-group">
                             <label>Challenge Title *</label>

@@ -13,7 +13,7 @@ const Course = require('../models/Course');
     const dummy = new Course({
       title: 'Intro to MERN (Dummy)',
       description: 'A short sample course demonstrating Topics and Lessons structure.',
-      difficulty: 'Easy',
+      difficulty: 'easy',
       testUnlockThreshold: 60,
       topics: [
         {

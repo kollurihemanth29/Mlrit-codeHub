@@ -39,7 +39,6 @@ import ModernCourseDetail from "./pages/ModernCourseDetail";
 import ModuleDetail from "./pages/ModuleDetail";
 import ModuleDisplayNew from './pages/ModuleDisplayNew';
 import TopicView from "./pages/TopicView";
-import Courses from "./pages/Courses";
 import CourseCatalog from "./pages/CourseCatalog";
 import Dashboard from "./pages/Dashboard";
 import LessonPage from "./pages/LessonPage";

@@ -18,8 +18,11 @@ const CourseCatalog = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [roadmaps, setRoadmaps] = useState([]);
+  const [userProgress, setUserProgress] = useState({});
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
   const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
 
   // Categories data matching the reference image
   const categories = [
@@ -87,29 +90,50 @@ const CourseCatalog = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
+        // Fetch user enrollment status
+        let userEnrolledCourses = [];
+        try {
+          const enrolledResponse = await axios.get(`http://localhost:5000/api/courses/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          userEnrolledCourses = enrolledResponse.data?.courses || [];
+          setEnrolledCourses(userEnrolledCourses);
+        } catch (enrollError) {
+          console.error('Error fetching enrolled courses:', enrollError);
+        }
+        
         // Transform backend data to match our format
-        const transformedCourses = response.data.map(course => ({
-          id: course._id,
-          title: course.title,
-          difficulty: course.difficulty === 'Easy' ? 'Beginner' : 
-                    course.difficulty === 'Medium' ? 'Intermediate' : 'Advanced',
-          rating: 4.8, // Mock rating for now
-          progress: Math.floor(Math.random() * 100), // Mock progress for now
-          duration: course.duration || "2-3 hours",
-          students: course.enrolledCount ? course.enrolledCount.toString() : "100",
-          description: course.description,
-          tags: course.title.toLowerCase().includes('javascript') ? ["JavaScript", "Programming", "Web Development"] :
-                course.title.toLowerCase().includes('react') ? ["React", "Frontend", "Components", "+1"] :
-                course.title.toLowerCase().includes('data') ? ["DSA", "Algorithms", "Problem Solving", "+1"] :
-                ["Programming", "Web Development"],
-          status: course.enrolledUsers?.includes(localStorage.getItem('userId')) ? "continue" : "start"
-        }));
+        const transformedCourses = response.data.map(course => {
+          const isEnrolled = userEnrolledCourses.some(c => c._id === course._id || c.id === course._id);
+          
+          return {
+            id: course._id,
+            title: course.title,
+            difficulty: course.difficulty === 'Easy' ? 'Beginner' : 
+                      course.difficulty === 'Medium' ? 'Intermediate' : 'Advanced',
+            rating: 4.8,
+            progress: 0, // Will be updated by fetchUserProgress
+            duration: course.duration || "2-3 hours",
+            students: course.enrolledCount ? course.enrolledCount.toString() : "100",
+            description: course.description,
+            tags: course.title.toLowerCase().includes('javascript') ? ["JavaScript", "Programming", "Web Development"] :
+                  course.title.toLowerCase().includes('react') ? ["React", "Frontend", "Components", "+1"] :
+                  course.title.toLowerCase().includes('data') ? ["DSA", "Algorithms", "Problem Solving", "+1"] :
+                  ["Programming", "Web Development"],
+            status: isEnrolled ? "continue" : "start",
+            isEnrolled,
+            progressDetails: {}
+          };
+        });
         
         setCourses(transformedCourses);
         setFilteredCourses(transformedCourses);
         
         // Update "All Courses" count
         categories[0].count = transformedCourses.length;
+        
+        // Fetch progress for enrolled courses
+        await fetchUserProgress(transformedCourses.filter(c => c.isEnrolled));
       } catch (err) {
         console.error('Error fetching courses:', err);
         // Fallback to mock data if backend is not available
@@ -123,6 +147,165 @@ const CourseCatalog = () => {
 
     fetchCourses();
   }, [token]);
+
+  // Listen for progress updates from other components
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      // Refresh progress for enrolled courses
+      const enrolledCoursesList = courses.filter(c => c.isEnrolled);
+      if (enrolledCoursesList.length > 0) {
+        fetchUserProgress(enrolledCoursesList);
+      }
+    };
+
+    // Listen for storage events (lesson/test/exam completion)
+    window.addEventListener('storage', handleProgressUpdate);
+    window.addEventListener('focus', handleProgressUpdate);
+    
+    // Listen for custom events
+    window.addEventListener('lessonCompleted', handleProgressUpdate);
+    window.addEventListener('testCompleted', handleProgressUpdate);
+    window.addEventListener('finalExamCompleted', handleProgressUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleProgressUpdate);
+      window.removeEventListener('focus', handleProgressUpdate);
+      window.removeEventListener('lessonCompleted', handleProgressUpdate);
+      window.removeEventListener('testCompleted', handleProgressUpdate);
+      window.removeEventListener('finalExamCompleted', handleProgressUpdate);
+    };
+  }, [courses, userId, token]);
+
+  // Fetch user progress for enrolled courses
+  const fetchUserProgress = async (enrolledCourses) => {
+    if (!userId || !enrolledCourses.length) return;
+    
+    const progressData = {};
+    
+    try {
+      // Fetch course details and progress for each enrolled course
+      const progressPromises = enrolledCourses.map(async (course) => {
+        try {
+          const [courseResponse, progressResponse, leaderboardStatsResponse] = await Promise.all([
+            axios.get(`http://localhost:5000/api/courses/${course.id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }),
+            axios.get(`http://localhost:5000/api/progress?userId=${userId}&courseId=${course.id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }),
+            axios.get(`http://localhost:5000/api/course-leaderboard/${course.id}/user/${userId}/stats`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          ]);
+          
+          const courseData = courseResponse.data;
+          const basicProgress = progressResponse.data || {};
+          const leaderboardStats = leaderboardStatsResponse.data || {};
+          
+          // Calculate progress similar to ModernCourseDetail
+          const calculatedProgress = calculateCourseProgress(courseData, basicProgress, leaderboardStats);
+          
+          return {
+            courseId: course.id,
+            progress: calculatedProgress
+          };
+        } catch (error) {
+          console.error(`Error fetching progress for course ${course.id}:`, error);
+          return {
+            courseId: course.id,
+            progress: { percent: 0, details: {} }
+          };
+        }
+      });
+      
+      const progressResults = await Promise.all(progressPromises);
+      
+      // Update progress data
+      progressResults.forEach(result => {
+        progressData[result.courseId] = result.progress;
+      });
+      
+      setUserProgress(progressData);
+      
+      // Update courses with real progress data
+      setCourses(prevCourses => 
+        prevCourses.map(course => ({
+          ...course,
+          progress: progressData[course.id]?.percent || 0,
+          progressDetails: progressData[course.id]?.details || {}
+        }))
+      );
+      
+    } catch (error) {
+      console.error('Error fetching user progress:', error);
+    }
+  };
+  
+  // Calculate course progress (similar to ModernCourseDetail)
+  const calculateCourseProgress = (course, progress, leaderboardStats) => {
+    if (!course?.topics || !progress) return { percent: 0, details: {} };
+    
+    const topicsProgress = progress.topicsProgress || [];
+    
+    // Calculate total course components
+    let totalLessons = 0;
+    let totalModuleTests = 0;
+    let totalFinalExams = course.finalExam ? 1 : 0;
+    
+    // Calculate completed components
+    let completedLessons = 0;
+    let completedModuleTests = 0;
+    let completedFinalExams = 0;
+    
+    course.topics.forEach(topic => {
+      const topicProgress = topicsProgress.find(tp => 
+        (tp.topicId?.toString() || tp.topicId) === (topic._id?.toString() || topic._id)
+      );
+      
+      // Count lessons
+      const lessonsInTopic = topic.lessons?.length || 0;
+      totalLessons += lessonsInTopic;
+      
+      if (topicProgress?.lessons) {
+        const completedLessonsInTopic = topicProgress.lessons.filter(l => l.completed).length;
+        completedLessons += completedLessonsInTopic;
+      }
+      
+      // Count module tests
+      if (topic.moduleTest) {
+        totalModuleTests++;
+        if (topicProgress?.moduleTest?.completed) {
+          completedModuleTests++;
+        }
+      }
+    });
+    
+    // Check final exam completion
+    if (progress.finalExamCompleted || leaderboardStats.progress?.finalExamCompleted) {
+      completedFinalExams = 1;
+    }
+    
+    // Calculate total components and completed components
+    const totalComponents = totalLessons + totalModuleTests + totalFinalExams;
+    const completedComponents = completedLessons + completedModuleTests + completedFinalExams;
+    
+    // Calculate accurate percentage
+    const percent = totalComponents > 0 ? Math.round((completedComponents / totalComponents) * 100) : 0;
+    
+    return {
+      percent,
+      details: {
+        lessonsCompleted: completedLessons,
+        totalLessons,
+        moduleTestsCompleted: completedModuleTests,
+        totalModuleTests,
+        finalExamCompleted: completedFinalExams > 0,
+        totalFinalExams,
+        totalComponents,
+        completedComponents
+      }
+    };
+  };
 
   // Fetch roadmaps from backend
   useEffect(() => {
@@ -476,13 +659,9 @@ const CourseCatalog = () => {
                   <h3 className="course-title-template">{course.title}</h3>
                   <p className="course-desc-template">{course.description}</p>
 
-                  {/* Progress Bar (if applicable) */}
-                  {course.progress > 0 && (
+                  {/* Progress Bar Only (if enrolled) */}
+                  {course.isEnrolled && (
                     <div className="progress-section">
-                      <div className="progress-info">
-                        <span className="progress-label-template">Progress</span>
-                        <span className="progress-percent">{course.progress}%</span>
-                      </div>
                       <div className="progress-bar-template">
                         <div 
                           className="progress-fill-template"

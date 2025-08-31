@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 const UserProgress = require("../models/UserProgress");
 const Course = require("../models/Course");
 const { authenticateToken } = require("../middleware/authMiddleware");
+const { updateUserCourseScore } = require("../controllers/courseLeaderboardController");
 
 // @route   GET /api/progress?userId=&courseId=
 // @desc    Get user progress for a course
@@ -92,6 +93,32 @@ router.post("/lesson",
         topicTitle: topicTitle || 'Unknown Topic'
       });
 
+      // Update leaderboard score if lesson is completed
+      if (completed) {
+        try {
+          const assessmentData = {
+            topicId: topicId,
+            lessonId: lessonId,
+            mcqResults: mcqResults || [],
+            codingResults: codingResults || []
+          };
+          const mockReq = { 
+            params: { courseId }, 
+            body: { 
+              userId, 
+              assessmentType: 'lesson', 
+              score: score || 0,
+              assessmentData: assessmentData
+            } 
+          };
+          const mockRes = { json: () => {}, status: () => ({ json: () => {} }) };
+          await updateUserCourseScore(mockReq, mockRes);
+        } catch (leaderboardErr) {
+          console.error('Error updating leaderboard:', leaderboardErr);
+          // Don't fail the main request if leaderboard update fails
+        }
+      }
+
       res.json({ 
         message: "Lesson progress updated successfully", 
         alreadyCompleted: false,
@@ -138,23 +165,27 @@ router.post("/module-test",
         return res.status(404).json({ message: "No test available for this topic" });
       }
 
+      // Get MCQs and coding challenges from topic
+      const mcqs = topic.moduleTest.mcqs || [];
+      const codeChallenges = topic.moduleTest.codeChallenges || [];
+      const totalQuestions = mcqs.length + codeChallenges.length;
+
       // Calculate score by comparing answers
       let correctAnswers = 0;
       let wrongAnswers = 0;
       let unattempted = 0;
       let mcqCorrect = 0;
       let codingCorrect = 0;
+      let mcqScore = 0;
+      let codingScore = 0;
       
-      const mcqs = topic.moduleTest.mcqs || [];
-      const codeChallenges = topic.moduleTest.codeChallenges || [];
-      const totalQuestions = mcqs.length + codeChallenges.length;
-      
-      // Check MCQ answers
+      // Check MCQ answers and calculate marks
       mcqs.forEach((mcq, index) => {
         if (answers[index] !== undefined) {
           if (answers[index] === mcq.correct) {
             correctAnswers++;
             mcqCorrect++;
+            mcqScore += mcq.marks || 1;
           } else {
             wrongAnswers++;
           }
@@ -163,15 +194,16 @@ router.post("/module-test",
         }
       });
       
-      // Check coding answers (simplified - in real implementation, would execute and test)
+      // Check coding answers and calculate marks
       if (codingAnswers) {
         Object.keys(codingAnswers).forEach((questionIndex) => {
           const codingIndex = parseInt(questionIndex) - mcqs.length;
-          if (codingIndex >= 0 && codingIndex < codeChallenges.length) {
+          if (codingIndex >= 0 && codingIndex < topic.moduleTest.codeChallenges.length) {
             // For now, just check if code exists (in real implementation, would test against expected output)
             if (codingAnswers[questionIndex] && codingAnswers[questionIndex].code && codingAnswers[questionIndex].code.trim()) {
               correctAnswers++;
               codingCorrect++;
+              codingScore += topic.moduleTest.codeChallenges[codingIndex].marks || 2;
             } else {
               wrongAnswers++;
             }
@@ -181,10 +213,14 @@ router.post("/module-test",
       
       // Count remaining unattempted coding questions
       const attemptedCoding = codingAnswers ? Object.keys(codingAnswers).length : 0;
-      unattempted += Math.max(0, codeChallenges.length - attemptedCoding);
+      unattempted += Math.max(0, topic.moduleTest.codeChallenges.length - attemptedCoding);
 
-      const totalMarks = topic.moduleTest.totalMarks || 100;
-      const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * totalMarks) : 0;
+      // Calculate total marks from actual question marks
+      const totalMcqMarks = mcqs.reduce((sum, mcq) => sum + (mcq.marks || 1), 0);
+      const totalCodingMarks = topic.moduleTest.codeChallenges.reduce((sum, challenge) => sum + (challenge.marks || 2), 0);
+      const totalMarks = totalMcqMarks + totalCodingMarks;
+      
+      const score = mcqScore + codingScore;
       const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
 
       let progress = await UserProgress.findOne({ userId, courseId });
@@ -205,6 +241,52 @@ router.post("/module-test",
         topicTitle: topicTitle || topic.title || 'Unknown Topic'
       });
 
+      // Update leaderboard score for module test completion
+      try {
+        // Prepare MCQ results
+        const mcqResults = mcqs.map((mcq, index) => ({
+          isCorrect: answers[index] !== undefined && answers[index] === mcq.correct
+        }));
+        
+        // Prepare coding results
+        const codingResults = codeChallenges.map((challenge, index) => {
+          const codingIndex = index + mcqs.length;
+          const hasCode = codingAnswers && codingAnswers[codingIndex] && codingAnswers[codingIndex].code && codingAnswers[codingIndex].code.trim();
+          return {
+            verdict: hasCode ? 'Accepted' : 'Wrong Answer'
+          };
+        });
+        
+        const assessmentData = {
+          topicId: topicId,
+          mcqResults: mcqResults,
+          codingResults: codingResults,
+          mcqQuestions: mcqs,
+          codingQuestions: codeChallenges
+        };
+        
+        console.log('Updating leaderboard with assessment data:', JSON.stringify(assessmentData, null, 2));
+        
+        const mockReq = { 
+          params: { courseId }, 
+          body: { 
+            userId, 
+            assessmentType: 'moduleTest', 
+            assessmentData: assessmentData
+          } 
+        };
+        const mockRes = { 
+          json: (data) => console.log('Leaderboard update success:', data), 
+          status: (code) => ({ 
+            json: (error) => console.error('Leaderboard update error:', code, error) 
+          }) 
+        };
+        await updateUserCourseScore(mockReq, mockRes);
+      } catch (leaderboardErr) {
+        console.error('Error updating leaderboard:', leaderboardErr);
+        // Don't fail the main request if leaderboard update fails
+      }
+
       res.json({ 
         message: "Module test submitted successfully", 
         progress: progress,
@@ -217,7 +299,9 @@ router.post("/module-test",
           unattempted,
           mcqCorrect,
           codingCorrect,
-          totalQuestions
+          totalQuestions,
+          mcqScore,
+          codingScore
         }
       });
     } catch (err) {

@@ -6,18 +6,28 @@ const lessonProgressSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedAt: { type: Date },
   timeSpent: { type: Number, default: 0 }, // in minutes
-  score: { type: Number, default: 0 }, // for MCQ/coding lessons
-  attempts: { type: Number, default: 0 }
+  mcqScore: { type: Number, default: 0 }, // MCQ score
+  codingScore: { type: Number, default: 0 }, // Coding challenge score
+  totalScore: { type: Number, default: 0 }, // Combined score
+  maxScore: { type: Number, default: 0 }, // Maximum possible score
+  attempts: { type: Number, default: 0 },
+  mcqAnswers: [{ questionIndex: Number, selectedAnswer: Number, isCorrect: Boolean }],
+  codingResults: [{ challengeIndex: Number, verdict: String, score: Number }]
 }, { _id: false });
 
 // Module test progress within a topic
 const moduleTestProgressSchema = new mongoose.Schema({
   attempted: { type: Boolean, default: false },
-  score: { type: Number, default: 0 },
-  totalMarks: { type: Number, default: 0 },
+  completed: { type: Boolean, default: false },
+  mcqScore: { type: Number, default: 0 },
+  codingScore: { type: Number, default: 0 },
+  totalScore: { type: Number, default: 0 },
+  maxScore: { type: Number, default: 0 },
   percentage: { type: Number, default: 0 },
   attemptedAt: { type: Date },
-  answers: [Object] // Store test answers
+  completedAt: { type: Date },
+  mcqAnswers: [{ questionIndex: Number, selectedAnswer: Number, isCorrect: Boolean }],
+  codingResults: [{ challengeIndex: Number, verdict: String, score: Number }]
 }, { _id: false });
 
 // Topic progress
@@ -48,9 +58,14 @@ const UserProgressSchema = new mongoose.Schema({
   
   // Final Exam Progress
   finalExamCompleted: { type: Boolean, default: false },
-  finalExamScore: { type: Number, default: 0 },
+  finalExamMcqScore: { type: Number, default: 0 },
+  finalExamCodingScore: { type: Number, default: 0 },
+  finalExamTotalScore: { type: Number, default: 0 },
+  finalExamMaxScore: { type: Number, default: 0 },
   finalExamAttempts: { type: Number, default: 0 },
   finalExamCompletedAt: { type: Date },
+  finalExamMcqAnswers: [{ questionIndex: Number, selectedAnswer: Number, isCorrect: Boolean }],
+  finalExamCodingResults: [{ challengeIndex: Number, verdict: String, score: Number }],
   certificateEarned: { type: Boolean, default: false },
   
   startedAt: { type: Date, default: Date.now },
@@ -158,12 +173,30 @@ UserProgressSchema.methods.updateModuleTestProgress = function(topicId, testData
   
   topic.moduleTest = {
     attempted: true,
+    completed: true,
     score: testData.score || 0,
     totalMarks: testData.totalMarks || 0,
     percentage: testData.totalMarks > 0 ? Math.round((testData.score / testData.totalMarks) * 100) : 0,
     attemptedAt: new Date(),
+    completedAt: new Date(),
     answers: testData.answers || []
   };
+  
+  this.lastAccessedAt = new Date();
+  return this.save();
+};
+
+// Update final exam progress
+UserProgressSchema.methods.updateFinalExamProgress = function(examData) {
+  this.finalExamCompleted = true;
+  this.finalExamMcqScore = examData.mcqScore || 0;
+  this.finalExamCodingScore = examData.codingScore || 0;
+  this.finalExamTotalScore = examData.totalScore || 0;
+  this.finalExamMaxScore = examData.maxScore || 0;
+  this.finalExamAttempts = (this.finalExamAttempts || 0) + 1;
+  this.finalExamCompletedAt = new Date();
+  this.finalExamMcqAnswers = examData.mcqAnswers || [];
+  this.finalExamCodingResults = examData.codingResults || [];
   
   this.lastAccessedAt = new Date();
   return this.save();

@@ -614,32 +614,6 @@
   margin-bottom: 4px;
 }
 
-/* Action Button */
-.course-action-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.course-action-btn:hover {
-  background-color: #2563eb;
-}
-
-.play-icon-template {
-  width: 16px;
-  height: 16px;
-}
 
 /* No Results */
 .no-results-template {

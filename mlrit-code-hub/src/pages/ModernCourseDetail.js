@@ -23,6 +23,7 @@ import {
   Timer,
   AlertTriangle
 } from "lucide-react";
+import LeaderboardSection from "../components/LeaderboardSection";
 import "./ModernCourseDetail.css";
 
 const ModernCourseDetail = () => {
@@ -52,10 +53,7 @@ const ModernCourseDetail = () => {
         setIsEnrolled(enrolled);
         
         if (enrolled && userId) {
-          const progressResponse = await axios.get(`http://localhost:5000/api/progress?userId=${userId}&courseId=${courseId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setProgress(progressResponse.data || {});
+          await fetchProgressData();
         }
       } catch (error) {
         console.error('Error fetching course data:', error);
@@ -67,16 +65,74 @@ const ModernCourseDetail = () => {
     fetchCourseData();
   }, [courseId, token, userId]);
 
-  const reloadProgress = async () => {
+  // Listen for storage events to refresh progress when returning from lessons/tests
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'lessonCompleted' || e.key === 'testCompleted') {
+        fetchProgressData();
+        localStorage.removeItem(e.key); // Clean up the trigger
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check on focus (when user returns to this tab)
+    const handleFocus = () => {
+      fetchProgressData();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [courseId, userId, token]);
+
+  const fetchProgressData = async () => {
     try {
-      const progRes = await axios.get(`http://localhost:5000/api/progress`, {
-        params: { userId, courseId: courseId },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setProgress(progRes.data || {});
-    } catch (e) {
-      console.error('Error refreshing progress:', e);
+      // Fetch comprehensive progress from leaderboard stats
+      const [progressResponse, leaderboardStatsResponse] = await Promise.all([
+        axios.get(`http://localhost:5000/api/progress?userId=${userId}&courseId=${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`http://localhost:5000/api/course-leaderboard/${courseId}/user/${userId}/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+      
+      const basicProgress = progressResponse.data || {};
+      const leaderboardStats = leaderboardStatsResponse.data || {};
+      
+      // Merge progress data with leaderboard stats for comprehensive tracking
+      const enhancedProgress = {
+        ...basicProgress,
+        leaderboardStats,
+        lessonsCompleted: leaderboardStats.progress?.lessonsCompleted || 0,
+        moduleTestsCompleted: leaderboardStats.progress?.moduleTestsCompleted || 0,
+        finalExamCompleted: leaderboardStats.progress?.finalExamCompleted || false,
+        overallScore: leaderboardStats.overallScore || 0,
+        breakdown: leaderboardStats.breakdown || {}
+      };
+      
+      setProgress(enhancedProgress);
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+      // Fallback to basic progress if leaderboard fails
+      try {
+        const progressResponse = await axios.get(`http://localhost:5000/api/progress?userId=${userId}&courseId=${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setProgress(progressResponse.data || {});
+      } catch (fallbackError) {
+        console.error('Error fetching fallback progress:', fallbackError);
+        setProgress({});
+      }
     }
+  };
+
+  const reloadProgress = async () => {
+    await fetchProgressData();
   };
 
   const startLesson = async (topic, lesson) => {
@@ -145,12 +201,88 @@ const ModernCourseDetail = () => {
     );
   }
 
-  const totalTopics = (course.topics || []).length;
-  const p = progress || {};
-  const completedTopics = (p.topicsProgress || []).filter(t => t.completed).length;
-  const progressPercent = typeof p.overallProgress === 'number'
-    ? p.overallProgress
-    : (totalTopics ? Math.round((completedTopics / totalTopics) * 100) : 0);
+  // Calculate accurate progress based on actual course structure
+  const calculateCourseProgress = () => {
+    if (!course?.topics || !progress) return { percent: 0, completed: 0, total: 0, details: {} };
+    
+    const topicsProgress = progress.topicsProgress || [];
+    const leaderboardStats = progress.leaderboardStats || {};
+    
+    // Calculate total course components
+    let totalLessons = 0;
+    let totalModuleTests = 0;
+    let totalFinalExams = course.finalExam ? 1 : 0;
+    
+    // Calculate completed components
+    let completedLessons = 0;
+    let completedModuleTests = 0;
+    let completedFinalExams = 0;
+    let completedTopics = 0;
+    
+    course.topics.forEach(topic => {
+      const topicProgress = topicsProgress.find(tp => 
+        (tp.topicId?.toString() || tp.topicId) === (topic._id?.toString() || topic._id)
+      );
+      
+      // Count lessons
+      const lessonsInTopic = topic.lessons?.length || 0;
+      totalLessons += lessonsInTopic;
+      
+      if (topicProgress?.lessons) {
+        const completedLessonsInTopic = topicProgress.lessons.filter(l => l.completed).length;
+        completedLessons += completedLessonsInTopic;
+      }
+      
+      // Count module tests
+      if (topic.moduleTest) {
+        totalModuleTests++;
+        if (topicProgress?.moduleTest?.completed) {
+          completedModuleTests++;
+        }
+      }
+      
+      // Check if entire topic is completed
+      const allLessonsCompleted = lessonsInTopic === 0 || 
+        (topicProgress?.lessons?.filter(l => l.completed).length === lessonsInTopic);
+      const moduleTestCompleted = !topic.moduleTest || topicProgress?.moduleTest?.completed;
+      
+      if (allLessonsCompleted && moduleTestCompleted) {
+        completedTopics++;
+      }
+    });
+    
+    // Check final exam completion from both progress and leaderboard stats
+    if (progress.finalExamCompleted || leaderboardStats.progress?.finalExamCompleted) {
+      completedFinalExams = 1;
+    }
+    
+    // Calculate total components and completed components
+    const totalComponents = totalLessons + totalModuleTests + totalFinalExams;
+    const completedComponents = completedLessons + completedModuleTests + completedFinalExams;
+    
+    // Calculate accurate percentage
+    const percent = totalComponents > 0 ? Math.round((completedComponents / totalComponents) * 100) : 0;
+    
+    return { 
+      percent, 
+      completed: completedTopics, 
+      total: course.topics.length,
+      details: {
+        lessonsCompleted: completedLessons,
+        totalLessons,
+        moduleTestsCompleted: completedModuleTests,
+        totalModuleTests,
+        finalExamCompleted: completedFinalExams > 0,
+        totalFinalExams,
+        overallScore: leaderboardStats.overallScore || 0,
+        breakdown: leaderboardStats.breakdown || {},
+        totalComponents,
+        completedComponents
+      }
+    };
+  };
+  
+  const { percent: progressPercent, completed: completedTopics, total: totalTopics, details: progressDetails } = calculateCourseProgress();
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty.toLowerCase()) {
@@ -218,7 +350,38 @@ const ModernCourseDetail = () => {
                       style={{ width: `${progressPercent}%` }}
                     ></div>
                   </div>
-                  <span className="progress-detail">{completedTopics} of {totalTopics} modules completed</span>
+                  <div className="progress-details">
+                    <div className="progress-breakdown">
+                      <div className="progress-section">
+                        <span className="section-title">Modules: {completedTopics}/{totalTopics}</span>
+                        <div className="section-items">
+                          <span className={`progress-item ${progressDetails.lessonsCompleted > 0 ? 'completed' : ''}`}>
+                            Lessons: {progressDetails.lessonsCompleted}/{progressDetails.totalLessons}
+                          </span>
+                          <span className={`progress-item ${progressDetails.moduleTestsCompleted > 0 ? 'completed' : ''}`}>
+                            Knowledge Assessments: {progressDetails.moduleTestsCompleted}/{progressDetails.totalModuleTests}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {progressDetails.totalFinalExams > 0 && (
+                        <div className="progress-section">
+                          <span className={`progress-item ${progressDetails.finalExamCompleted ? 'completed' : ''}`}>
+                            Final Exam: {progressDetails.finalExamCompleted ? '1/1' : '0/1'}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="progress-summary">
+                        <span className="summary-text">
+                          Total Progress: {progressDetails.completedComponents}/{progressDetails.totalComponents} components
+                        </span>
+                        {progressDetails.overallScore > 0 && (
+                          <span className="score-text">Overall Score: {progressDetails.overallScore}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -262,7 +425,7 @@ const ModernCourseDetail = () => {
                     onClick={() => {
                       if (progressPercent > 0) {
                         const firstIncompleteTopicIndex = (course.topics || []).findIndex((topic) => {
-                          const tProg = ((p.topicsProgress || [])).find(tp => 
+                          const tProg = ((progress?.topicsProgress || [])).find(tp => 
                             (tp.topicId?.toString?.() || tp.topicId) === (topic._id?.toString?.() || topic._id)
                           );
                           return !tProg?.completed;
@@ -313,11 +476,11 @@ const ModernCourseDetail = () => {
             </button>
             {isEnrolled && (
               <button 
-                className={`modern-tab ${activeTab === 'progress' ? 'active' : ''}`}
-                onClick={() => setActiveTab('progress')}
+                className={`modern-tab ${activeTab === 'leaderboard' ? 'active' : ''}`}
+                onClick={() => setActiveTab('leaderboard')}
               >
-                <TrendingUp size={18} />
-                <span>Progress</span>
+                <Trophy size={18} />
+                <span>Leaderboard</span>
               </button>
             )}
           </div>
@@ -337,9 +500,32 @@ const ModernCourseDetail = () => {
             
             <div className="modules-grid">
               {(course.topics || []).map((topic, topicIndex) => {
-                const tProg = ((p.topicsProgress || [])).find(tp => (tp.topicId?.toString?.() || tp.topicId) === (topic._id?.toString?.() || topic._id));
-                const isTopicCompleted = tProg?.completed || false;
-                const topicCompletionPercentage = tProg?.completionPercentage || 0;
+                const tProg = ((progress?.topicsProgress || [])).find(tp => (tp.topicId?.toString?.() || tp.topicId) === (topic._id?.toString?.() || topic._id));
+                
+                // Enhanced topic completion calculation including knowledge assessments
+                const hasModuleTest = topic.moduleTest;
+                const moduleTestCompleted = tProg?.moduleTestCompleted || false;
+                const lessonsInTopic = topic.lessons?.length || 0;
+                const completedLessonsInTopic = tProg?.lessons?.filter(l => l.completed).length || 0;
+                
+                // Topic is fully completed if lessons + module test (if exists) are done
+                const topicFullyCompleted = (
+                  (lessonsInTopic === 0 || completedLessonsInTopic === lessonsInTopic) &&
+                  (!hasModuleTest || moduleTestCompleted)
+                );
+                const isTopicCompleted = tProg?.completed || topicFullyCompleted;
+                
+                // Calculate detailed completion percentage including knowledge assessments
+                let topicCompletionPercentage = 0;
+                if (lessonsInTopic > 0 || hasModuleTest) {
+                  const lessonWeight = hasModuleTest ? 0.7 : 1.0;
+                  const testWeight = hasModuleTest ? 0.3 : 0;
+                  
+                  const lessonPercent = lessonsInTopic > 0 ? (completedLessonsInTopic / lessonsInTopic) * 100 : 0;
+                  const testPercent = moduleTestCompleted ? 100 : 0;
+                  
+                  topicCompletionPercentage = Math.round((lessonPercent * lessonWeight) + (testPercent * testWeight));
+                }
                 const isLocked = !isEnrolled;
                 
                 return (
@@ -405,12 +591,14 @@ const ModernCourseDetail = () => {
                             {/* Module Test */}
                             {topic.moduleTest && (topic.moduleTest.mcqs?.length > 0 || topic.moduleTest.codeChallenges?.length > 0) && (
                               <div 
-                                className={`module-item test-item ${isLocked ? 'locked' : ''}`}
+                                className={`module-item test-item ${moduleTestCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
                                 onClick={() => !isLocked && navigate(`/courses/${courseId}/topic/${topic._id}/test`)}
                               >
                                 <div className="item-status">
                                   {isLocked ? (
                                     <Lock size={16} />
+                                  ) : moduleTestCompleted ? (
+                                    <CheckCircle size={16} color="#22c55e" />
                                   ) : (
                                     <div className="item-icon test">
                                       <Award size={16} />
@@ -563,41 +751,8 @@ const ModernCourseDetail = () => {
           </div>
         )}
         
-        {activeTab === 'progress' && isEnrolled && (
-          <div className="progress-section">
-            <div className="progress-overview">
-              <h3 className="section-title">Your Progress</h3>
-              <div className="progress-stats">
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <TrendingUp size={24} />
-                  </div>
-                  <div className="stat-info">
-                    <span className="stat-value">{progressPercent}%</span>
-                    <span className="stat-label">Complete</span>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <BookOpen size={24} />
-                  </div>
-                  <div className="stat-info">
-                    <span className="stat-value">{completedTopics}/{totalTopics}</span>
-                    <span className="stat-label">Modules</span>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <Trophy size={24} />
-                  </div>
-                  <div className="stat-info">
-                    <span className="stat-value">0/1</span>
-                    <span className="stat-label">Certificates</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {activeTab === 'leaderboard' && isEnrolled && (
+          <LeaderboardSection courseId={courseId} userId={userId} token={token} />
         )}
       </div>
     </div>
